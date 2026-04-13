@@ -1,7 +1,7 @@
 # Deployment Runbook
 
 ## Target Architecture
-- Frontend: Vercel (`frontend/`)
+- Frontend: Netlify (`frontend/`)
 - Backend: Render (`backend/`)
 - Database: Neon Postgres
 - Cache: Upstash Redis
@@ -34,18 +34,20 @@ cd backend
 DATABASE_URL="<your-production-db-url>" npm run prisma:migrate:deploy
 ```
 
-## 4. Frontend Deployment (Vercel)
-- Import repo, set Root Directory to `frontend`.
-- Build command: `npm run build` (default).
-- Output directory: `dist`.
-- Set env var:
+## 4. Frontend Deployment (Netlify)
+- Import repo in Netlify from GitHub.
+- Set **Base directory** to `frontend`.
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Set environment variable:
   - `VITE_API_BASE_URL=https://<your-backend-domain>/api/v1`
 
-`frontend/vercel.json` includes SPA rewrite fallback for client routes.
+`frontend/netlify.toml` already includes SPA rewrite fallback:
+- `/* -> /index.html` (status 200)
 
 ## 5. Final Cross-Origin Cookie Setup
-After Vercel URL is live, set backend env:
-- `FRONTEND_ORIGIN=https://<your-vercel-domain>`
+After Netlify URL is live, set backend env:
+- `FRONTEND_ORIGIN=https://<your-netlify-domain>`
 
 Why: backend CORS uses this in production with `credentials: true`, and refresh cookie is sent with:
 - `httpOnly: true`

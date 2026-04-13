@@ -42,4 +42,4 @@ npm run dev
 ## Deployment
 - Deployment runbook: `docs/deployment.md`
 - Render blueprint config: `render.yaml`
-- Vercel SPA routing config: `frontend/vercel.json`
+- Netlify config (build + SPA routing): `frontend/netlify.toml`
