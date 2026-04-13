@@ -6,13 +6,22 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { useCart } from '@/hooks/useCart'
+import { parseApiValidationDetails } from '@/lib/api-error'
 import { formatCurrency } from '@/lib/currency'
 import { couponSchema, type CouponFormValues } from '@/lib/validation/cart'
 
 export function CheckoutPreviewPage() {
   const { accessToken, isAuthenticated, setStatusMessage, clearSession } = useAuthSession()
-  const { register, watch, formState: { errors } } = useForm<CouponFormValues>({
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setError,
+    formState: { errors, touchedFields, submitCount },
+  } = useForm<CouponFormValues>({
     resolver: zodResolver(couponSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       couponCode: '',
     },
@@ -27,6 +36,23 @@ export function CheckoutPreviewPage() {
     clearSession,
   })
 
+  const handlePreview = async () => {
+    try {
+      await previewCheckoutMutation.mutateAsync()
+    } catch (error) {
+      const { fieldErrors, formErrors } = parseApiValidationDetails(error)
+
+      if (fieldErrors.couponCode?.[0]) {
+        setError('couponCode', { type: 'server', message: fieldErrors.couponCode[0] })
+      }
+      if (formErrors[0]) {
+        setError('root', { type: 'server', message: formErrors[0] })
+      }
+    }
+  }
+  const showCouponError = !!errors.couponCode && (touchedFields.couponCode || submitCount > 0)
+  const showRootError = !!errors.root && submitCount > 0
+
   return (
     <Card className="border-slate-200/80 bg-white/95">
       <CardHeader>
@@ -36,7 +62,10 @@ export function CheckoutPreviewPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-3 rounded-lg border border-slate-200/80 bg-slate-50/80 p-4 sm:flex-row">
+        <form
+          className="flex flex-col gap-3 rounded-lg border border-slate-200/80 bg-slate-50/80 p-4 sm:flex-row"
+          onSubmit={(event) => void handleSubmit(handlePreview)(event)}
+        >
           <div className="w-full space-y-2">
             <Label htmlFor="coupon-code">Coupon code</Label>
             <Input
@@ -44,20 +73,23 @@ export function CheckoutPreviewPage() {
               placeholder="Optional, e.g. SAVE10"
               {...register('couponCode')}
             />
-            {errors.couponCode ? (
-              <p className="text-xs text-destructive">{errors.couponCode.message}</p>
+            {showCouponError ? (
+              <p className="text-xs text-destructive">{errors.couponCode?.message}</p>
             ) : null}
           </div>
           <div className="flex items-end">
             <Button
-              onClick={() => previewCheckoutMutation.mutate()}
+              type="submit"
               disabled={previewCheckoutMutation.isPending || cartItems.length === 0 || !!errors.couponCode}
               className="w-full sm:w-auto"
             >
               Preview
             </Button>
           </div>
-        </div>
+          {showRootError ? (
+            <p className="text-xs text-destructive sm:basis-full">{errors.root?.message}</p>
+          ) : null}
+        </form>
 
         {previewCheckoutMutation.data ? (
           <div className="mt-4 space-y-2 rounded-lg border border-slate-200/80 bg-slate-50 p-4 text-sm">

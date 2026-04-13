@@ -10,6 +10,7 @@ import {
   updateCartItemQuantity,
   type CartItem,
 } from '@/lib/auth-api'
+import { toStatusMessage } from '@/lib/api-error'
 
 type UseCartParams = {
   accessToken: string
@@ -35,12 +36,12 @@ export function useCart({
       } else if (error.status === 403) {
         setStatusMessage('Forbidden: this action is not allowed for your role.')
       } else {
-        setStatusMessage(error.message)
+        setStatusMessage(toStatusMessage(error, fallback))
       }
       return
     }
 
-    setStatusMessage(error instanceof Error ? error.message : fallback)
+    setStatusMessage(toStatusMessage(error, fallback))
   }
 
   const cartQuery = useQuery({

@@ -250,3 +250,29 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend API client and auth/cart hooks.
 - Follow-up Actions: Surface `requestId` in debug UI and QA logs when available.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-019 | Inline 422 Field Mapping for Frontend Forms
+- Date: 2026-04-13
+- Decision ID: DEC-019
+- Decision: Map backend `422 VALIDATION_ERROR` details to field-level errors via `react-hook-form`.
+- Context: Status-only error messaging is insufficient for good UX and interviewer-grade validation handling.
+- Options Considered: Show generic toast/status errors, map backend field errors inline.
+- Chosen Option: Inline field-level mapping.
+- Rationale: Faster user correction loops and stronger client-server contract alignment.
+- Risks / Edge Cases: Requires key alignment between backend field names and frontend form fields.
+- Impacted Modules / Files: auth/cart/checkout forms, frontend API error parsing utility.
+- Follow-up Actions: Add shared typing/generator for backend validation field keys.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-020 | Frontend API Error Parsing Utility + Contract Tests
+- Date: 2026-04-13
+- Decision ID: DEC-020
+- Decision: Centralize client error envelope parsing (`fieldErrors`, `formErrors`, `requestId`) in `lib/api-error.ts` and test it with Vitest.
+- Context: Repeated ad-hoc parsing across hooks/pages increases drift risk.
+- Options Considered: Parse per-page, shared utility with tests.
+- Chosen Option: Shared utility + tests.
+- Rationale: Single source of truth improves reliability and maintainability.
+- Risks / Edge Cases: Parser must be updated if backend envelope format changes.
+- Impacted Modules / Files: frontend error utilities, hooks, forms, test setup.
+- Follow-up Actions: Add component/integration tests for complete form submission flows.
+- Supersedes: N/A

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
+import { parseApiValidationDetails } from '@/lib/api-error'
 import { type LoginFormValues, loginSchema } from '@/lib/validation/auth'
 
 export function LoginPage() {
@@ -13,9 +14,12 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    setError,
+    formState: { errors, touchedFields, submitCount, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -23,8 +27,25 @@ export function LoginPage() {
   })
 
   const onSubmit = async (values: LoginFormValues) => {
-    await submitAuth('login', values.email, values.password)
+    try {
+      await submitAuth('login', values.email, values.password)
+    } catch (error) {
+      const { fieldErrors, formErrors } = parseApiValidationDetails(error)
+
+      if (fieldErrors.email?.[0]) {
+        setError('email', { type: 'server', message: fieldErrors.email[0] })
+      }
+      if (fieldErrors.password?.[0]) {
+        setError('password', { type: 'server', message: fieldErrors.password[0] })
+      }
+      if (formErrors[0]) {
+        setError('root', { type: 'server', message: formErrors[0] })
+      }
+    }
   }
+  const showEmailError = !!errors.email && (touchedFields.email || submitCount > 0)
+  const showPasswordError = !!errors.password && (touchedFields.password || submitCount > 0)
+  const showRootError = !!errors.root && submitCount > 0
 
   return (
     <Card className="mx-auto max-w-xl border-slate-200/80 bg-white/95">
@@ -43,7 +64,7 @@ export function LoginPage() {
               autoComplete="email"
               {...register('email')}
             />
-            {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
+            {showEmailError ? <p className="text-xs text-destructive">{errors.email?.message}</p> : null}
           </div>
 
           <div className="space-y-2">
@@ -55,10 +76,13 @@ export function LoginPage() {
               autoComplete="current-password"
               {...register('password')}
             />
-            {errors.password ? (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
+            {showPasswordError ? (
+              <p className="text-xs text-destructive">{errors.password?.message}</p>
             ) : null}
           </div>
+          {showRootError ? (
+            <p className="text-xs text-destructive">{errors.root?.message}</p>
+          ) : null}
 
           <Button type="submit" disabled={busy || isSubmitting} className="w-full">
             {busy || isSubmitting ? 'Please wait...' : 'Sign in'}

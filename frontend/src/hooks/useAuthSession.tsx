@@ -11,6 +11,7 @@ import {
   register,
   type AuthUser,
 } from '@/lib/auth-api'
+import { toStatusMessage } from '@/lib/api-error'
 
 type AuthMode = 'login' | 'register'
 
@@ -54,14 +55,9 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       if (error.status === 401) {
         clearSession('Session expired. Please login again.')
       }
-      return error.message
+      return toStatusMessage(error, fallback)
     }
-
-    if (error instanceof Error) {
-      return error.message
-    }
-
-    return fallback
+    return toStatusMessage(error, fallback)
   }
 
   useEffect(() => {

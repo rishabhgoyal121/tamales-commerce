@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { useCart } from '@/hooks/useCart'
+import { parseApiValidationDetails } from '@/lib/api-error'
 import { formatCurrency } from '@/lib/currency'
 import { addCartItemSchema, type AddCartItemFormValues } from '@/lib/validation/cart'
 
@@ -18,9 +19,12 @@ export function CartPage() {
     register,
     handleSubmit,
     resetField,
-    formState: { errors },
+    setError,
+    formState: { errors, touchedFields, submitCount },
   } = useForm<AddCartItemFormValues>({
     resolver: zodResolver(addCartItemSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       productId: '',
       quantity: 1,
@@ -43,13 +47,30 @@ export function CartPage() {
     clearSession,
   })
 
-  const handleAddToCart = (values: AddCartItemFormValues) => {
-    addCartItemMutation.mutate({
-      productId: values.productId.trim(),
-      quantity: values.quantity,
-    })
-    resetField('productId')
+  const handleAddToCart = async (values: AddCartItemFormValues) => {
+    try {
+      await addCartItemMutation.mutateAsync({
+        productId: values.productId.trim(),
+        quantity: values.quantity,
+      })
+      resetField('productId')
+    } catch (error) {
+      const { fieldErrors, formErrors } = parseApiValidationDetails(error)
+
+      if (fieldErrors.productId?.[0]) {
+        setError('productId', { type: 'server', message: fieldErrors.productId[0] })
+      }
+      if (fieldErrors.quantity?.[0]) {
+        setError('quantity', { type: 'server', message: fieldErrors.quantity[0] })
+      }
+      if (formErrors[0]) {
+        setError('root', { type: 'server', message: formErrors[0] })
+      }
+    }
   }
+  const showProductIdError = !!errors.productId && (touchedFields.productId || submitCount > 0)
+  const showQuantityError = !!errors.quantity && (touchedFields.quantity || submitCount > 0)
+  const showRootError = !!errors.root && submitCount > 0
 
   return (
     <Card className="border-slate-200/80 bg-white/95">
@@ -67,8 +88,8 @@ export function CartPage() {
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="product-id">Product ID</Label>
             <Input id="product-id" placeholder="prod_xxx" {...register('productId')} />
-            {errors.productId ? (
-              <p className="text-xs text-destructive">{errors.productId.message}</p>
+            {showProductIdError ? (
+              <p className="text-xs text-destructive">{errors.productId?.message}</p>
             ) : null}
           </div>
           <div className="space-y-2">
@@ -82,8 +103,8 @@ export function CartPage() {
                 setValueAs: (value) => Number.parseInt(value, 10) || 1,
               })}
             />
-            {errors.quantity ? (
-              <p className="text-xs text-destructive">{errors.quantity.message}</p>
+            {showQuantityError ? (
+              <p className="text-xs text-destructive">{errors.quantity?.message}</p>
             ) : null}
           </div>
           <div className="flex items-end">
@@ -91,6 +112,9 @@ export function CartPage() {
               Add Item
             </Button>
           </div>
+          {showRootError ? (
+            <p className="text-xs text-destructive sm:col-span-4">{errors.root?.message}</p>
+          ) : null}
         </form>
 
         <div className="mt-4">
