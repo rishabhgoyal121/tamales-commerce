@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Seo } from '@/components/seo/Seo'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
@@ -94,144 +95,147 @@ export function OrdersPage() {
   const canGoNext = meta ? meta.page < meta.totalPages : false
 
   return (
-    <Card className="border-slate-200/80 bg-white/95">
-      <CardHeader>
-        <CardTitle>My Orders</CardTitle>
-        <CardDescription>Track order and payment statuses with server-side filters and pagination.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <section className="rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="orders-status">Order status</Label>
-              <select
-                id="orders-status"
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={status}
-                onChange={(event) => {
-                  setStatus(event.target.value as '' | OrderStatus)
-                  setPage(1)
-                }}
-              >
-                {ORDER_STATUS_OPTIONS.map((option) => (
-                  <option key={option.label} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="orders-payment-status">Payment status</Label>
-              <select
-                id="orders-payment-status"
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={paymentStatus}
-                onChange={(event) => {
-                  setPaymentStatus(event.target.value as '' | PaymentStatus)
-                  setPage(1)
-                }}
-              >
-                {PAYMENT_STATUS_OPTIONS.map((option) => (
-                  <option key={option.label} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="orders-sort">Sort</Label>
-              <select
-                id="orders-sort"
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={sort}
-                onChange={(event) => {
-                  setSort(event.target.value as OrderListSort)
-                  setPage(1)
-                }}
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-4">
-          {ordersQuery.isLoading ? <p className="text-sm text-muted-foreground">Loading orders...</p> : null}
-
-          {ordersQuery.isError ? (
-            <p className="text-sm text-destructive">{toStatusMessage(ordersQuery.error, 'Failed to load orders')}</p>
-          ) : null}
-
-          {!ordersQuery.isLoading && !ordersQuery.isError && orders.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No orders found for selected filters.</p>
-          ) : null}
-
-          {!ordersQuery.isLoading && !ordersQuery.isError && orders.length > 0 ? (
-            <div className="space-y-3">
-              {orders.map((order) => (
-                <article
-                  key={order.id}
-                  className="rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm"
+    <>
+      <Seo title="My Orders | Tamales Commerce" description="Track order history, payment status, and delivery updates." />
+      <Card className="border-slate-200/80 bg-white/95">
+        <CardHeader>
+          <CardTitle>My Orders</CardTitle>
+          <CardDescription>Track order and payment statuses with server-side filters and pagination.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <section className="rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="orders-status">Order status</Label>
+                <select
+                  id="orders-status"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={status}
+                  onChange={(event) => {
+                    setStatus(event.target.value as '' | OrderStatus)
+                    setPage(1)
+                  }}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Order ID</p>
-                      <p className="font-mono text-sm">{order.id}</p>
-                    </div>
-                    <p className="text-sm font-semibold">{formatCurrency(order.totalCents)}</p>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className={`rounded-md border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(order.status)}`}>
-                      {order.status}
-                    </span>
-                    <span
-                      className={`rounded-md border px-2 py-0.5 text-xs font-medium ${paymentBadgeClass(order.paymentStatus)}`}
-                    >
-                      {order.paymentStatus}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleString()}
-                    </span>
-                    <Link
-                      to={`/orders/${order.id}`}
-                      className="ml-auto inline-flex items-center rounded-md border border-slate-200 px-2 py-0.5 text-xs font-medium hover:bg-slate-50"
-                    >
-                      View details
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                  {ORDER_STATUS_OPTIONS.map((option) => (
+                    <option key={option.label} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="orders-payment-status">Payment status</Label>
+                <select
+                  id="orders-payment-status"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={paymentStatus}
+                  onChange={(event) => {
+                    setPaymentStatus(event.target.value as '' | PaymentStatus)
+                    setPage(1)
+                  }}
+                >
+                  {PAYMENT_STATUS_OPTIONS.map((option) => (
+                    <option key={option.label} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="orders-sort">Sort</Label>
+                <select
+                  id="orders-sort"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={sort}
+                  onChange={(event) => {
+                    setSort(event.target.value as OrderListSort)
+                    setPage(1)
+                  }}
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          ) : null}
-        </section>
+          </section>
 
-        <section className="mt-4 flex items-center justify-between rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm">
-          <p>
-            Page {meta?.page ?? page} of {meta?.totalPages ?? 1} ({meta?.total ?? 0} orders)
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={!canGoPrev || ordersQuery.isFetching}
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              disabled={!canGoNext || ordersQuery.isFetching}
-              onClick={() => setPage((value) => value + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        </section>
-      </CardContent>
-    </Card>
+          <section className="mt-4">
+            {ordersQuery.isLoading ? <p className="text-sm text-muted-foreground">Loading orders...</p> : null}
+
+            {ordersQuery.isError ? (
+              <p className="text-sm text-destructive">{toStatusMessage(ordersQuery.error, 'Failed to load orders')}</p>
+            ) : null}
+
+            {!ordersQuery.isLoading && !ordersQuery.isError && orders.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No orders found for selected filters.</p>
+            ) : null}
+
+            {!ordersQuery.isLoading && !ordersQuery.isError && orders.length > 0 ? (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <article
+                    key={order.id}
+                    className="rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Order ID</p>
+                        <p className="font-mono text-sm">{order.id}</p>
+                      </div>
+                      <p className="text-sm font-semibold">{formatCurrency(order.totalCents)}</p>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span className={`rounded-md border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(order.status)}`}>
+                        {order.status}
+                      </span>
+                      <span
+                        className={`rounded-md border px-2 py-0.5 text-xs font-medium ${paymentBadgeClass(order.paymentStatus)}`}
+                      >
+                        {order.paymentStatus}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleString()}
+                      </span>
+                      <Link
+                        to={`/orders/${order.id}`}
+                        className="ml-auto inline-flex items-center rounded-md border border-slate-200 px-2 py-0.5 text-xs font-medium hover:bg-slate-50"
+                      >
+                        View details
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : null}
+          </section>
+
+          <section className="mt-4 flex items-center justify-between rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm">
+            <p>
+              Page {meta?.page ?? page} of {meta?.totalPages ?? 1} ({meta?.total ?? 0} orders)
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                disabled={!canGoPrev || ordersQuery.isFetching}
+                onClick={() => setPage((value) => Math.max(1, value - 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!canGoNext || ordersQuery.isFetching}
+                onClick={() => setPage((value) => value + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </section>
+        </CardContent>
+      </Card>
+    </>
   )
 }

@@ -12,6 +12,7 @@ import {
   type AuthUser,
 } from '@/lib/auth-api'
 import { toStatusMessage } from '@/lib/api-error'
+import { notifyError, notifyInfo, notifySuccess } from '@/lib/notify'
 
 type AuthMode = 'login' | 'register'
 
@@ -48,6 +49,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     queryClient.removeQueries({ queryKey: ['cart'] })
     queryClient.removeQueries({ queryKey: ['checkout-preview'] })
     setStatusMessage(reason)
+    notifyInfo(reason)
   }
 
   const mapApiError = (error: unknown, fallback: string) => {
@@ -90,8 +92,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
           ? 'Login successful. Access token stored in memory.'
           : 'Registration successful. You are now signed in.',
       )
+      notifySuccess(mode === 'login' ? 'Welcome back.' : 'Account created and logged in.')
     } catch (error) {
-      setStatusMessage(mapApiError(error, 'Authentication request failed'))
+      const message = mapApiError(error, 'Authentication request failed')
+      setStatusMessage(message)
+      notifyError(message)
       throw error
     } finally {
       setBusy(false)
@@ -103,8 +108,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     try {
       const response = await me(accessToken)
       setStatusMessage(`Authenticated as ${response.data.email} (${response.data.role}).`)
+      notifySuccess('Session is valid.')
     } catch (error) {
-      setStatusMessage(mapApiError(error, 'Failed to load /auth/me'))
+      const message = mapApiError(error, 'Failed to load /auth/me')
+      setStatusMessage(message)
+      notifyError(message)
       throw error
     } finally {
       setBusy(false)
@@ -118,8 +126,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setUser(response.data.user)
       setAccessToken(response.data.accessToken)
       setStatusMessage('Session refreshed. Access token rotated.')
+      notifySuccess('Session refreshed.')
     } catch (error) {
-      setStatusMessage(mapApiError(error, 'Session refresh failed'))
+      const message = mapApiError(error, 'Session refresh failed')
+      setStatusMessage(message)
+      notifyError(message)
       throw error
     } finally {
       setBusy(false)
@@ -131,8 +142,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     try {
       const response = await adminCheck(accessToken)
       setStatusMessage(response.data.message)
+      notifySuccess('Admin access verified.')
     } catch (error) {
-      setStatusMessage(mapApiError(error, 'Admin check failed'))
+      const message = mapApiError(error, 'Admin check failed')
+      setStatusMessage(message)
+      notifyError(message)
       throw error
     } finally {
       setBusy(false)
@@ -148,8 +162,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       queryClient.removeQueries({ queryKey: ['cart'] })
       queryClient.removeQueries({ queryKey: ['checkout-preview'] })
       setStatusMessage('Logged out. Refresh token revoked on backend.')
+      notifyInfo('Logged out successfully.')
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Logout failed')
+      const message = error instanceof Error ? error.message : 'Logout failed'
+      setStatusMessage(message)
+      notifyError(message)
       throw error
     } finally {
       setBusy(false)

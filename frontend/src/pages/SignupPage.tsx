@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Seo } from '@/components/seo/Seo'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { parseApiValidationDetails } from '@/lib/api-error'
 import { signupSchema, type SignupFormValues } from '@/lib/validation/auth'
@@ -48,13 +49,15 @@ export function SignupPage() {
   const showRootError = !!errors.root && submitCount > 0
 
   return (
-    <Card className="mx-auto max-w-xl border-slate-200/80 bg-white/95">
-      <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-        <CardDescription>Create a new account and start exploring the app.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4" onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
+    <>
+      <Seo title="Sign Up | Tamales Commerce" description="Create an account to start shopping and placing orders." />
+      <Card className="mx-auto max-w-xl border-slate-200/80 bg-white/95">
+        <CardHeader>
+          <CardTitle>Sign Up</CardTitle>
+          <CardDescription>Create a new account and start exploring the app.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
           <div className="space-y-2">
             <Label htmlFor="signup-email">Email</Label>
             <Input
@@ -89,13 +92,14 @@ export function SignupPage() {
           </Button>
         </form>
 
-        <p className="mt-4 text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-foreground underline">
-            Login
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-foreground underline">
+              Login
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    </>
   )
 }

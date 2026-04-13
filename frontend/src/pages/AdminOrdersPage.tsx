@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
+import { Seo } from '@/components/seo/Seo'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -131,12 +132,17 @@ export function AdminOrdersPage() {
   }
 
   return (
-    <Card className="border-slate-200/80 bg-white/95">
-      <CardHeader>
-        <CardTitle>Admin Orders</CardTitle>
-        <CardDescription>Manage and inspect all customer orders across statuses.</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <>
+      <Seo
+        title="Admin Orders | Tamales Commerce"
+        description="Filter, inspect, and transition customer orders from the admin console."
+      />
+      <Card className="border-slate-200/80 bg-white/95">
+        <CardHeader>
+          <CardTitle>Admin Orders</CardTitle>
+          <CardDescription>Manage and inspect all customer orders across statuses.</CardDescription>
+        </CardHeader>
+        <CardContent>
         <section className="rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">
           <div className="grid gap-3 md:grid-cols-4">
             <div className="space-y-2 md:col-span-2">
@@ -368,28 +374,29 @@ export function AdminOrdersPage() {
           </section>
         ) : null}
 
-        <section className="mt-4 flex items-center justify-between rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm">
-          <p>
-            Page {meta?.page ?? page} of {meta?.totalPages ?? 1} ({meta?.total ?? 0} orders)
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={!canGoPrev || adminOrdersQuery.isFetching}
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              disabled={!canGoNext || adminOrdersQuery.isFetching}
-              onClick={() => setPage((value) => value + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        </section>
-      </CardContent>
-    </Card>
+          <section className="mt-4 flex items-center justify-between rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm">
+            <p>
+              Page {meta?.page ?? page} of {meta?.totalPages ?? 1} ({meta?.total ?? 0} orders)
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                disabled={!canGoPrev || adminOrdersQuery.isFetching}
+                onClick={() => setPage((value) => Math.max(1, value - 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!canGoNext || adminOrdersQuery.isFetching}
+                onClick={() => setPage((value) => value + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </section>
+        </CardContent>
+      </Card>
+    </>
   )
 }

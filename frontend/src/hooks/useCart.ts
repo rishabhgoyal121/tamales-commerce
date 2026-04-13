@@ -12,6 +12,7 @@ import {
   type CartItem,
 } from '@/lib/auth-api'
 import { toStatusMessage } from '@/lib/api-error'
+import { notifyError, notifyInfo, notifySuccess } from '@/lib/notify'
 
 type UseCartParams = {
   accessToken: string
@@ -35,14 +36,20 @@ export function useCart({
       if (error.status === 401) {
         clearSession('Session expired during cart operation. Please login again.')
       } else if (error.status === 403) {
-        setStatusMessage('Forbidden: this action is not allowed for your role.')
+        const message = 'Forbidden: this action is not allowed for your role.'
+        setStatusMessage(message)
+        notifyError(message)
       } else {
-        setStatusMessage(toStatusMessage(error, fallback))
+        const message = toStatusMessage(error, fallback)
+        setStatusMessage(message)
+        notifyError(message)
       }
       return
     }
 
-    setStatusMessage(toStatusMessage(error, fallback))
+    const message = toStatusMessage(error, fallback)
+    setStatusMessage(message)
+    notifyError(message)
   }
 
   const cartQuery = useQuery({
@@ -57,6 +64,7 @@ export function useCart({
     onSuccess: (data) => {
       queryClient.setQueryData(cartQueryKey, data)
       setStatusMessage('Item added to cart.')
+      notifySuccess('Item added to cart.')
     },
     onError: (error) => {
       handleMutationError(error, 'Failed to add item to cart')
@@ -107,6 +115,7 @@ export function useCart({
     onSuccess: (data) => {
       queryClient.setQueryData(cartQueryKey, data)
       setStatusMessage('Item removed from cart.')
+      notifyInfo('Item removed from cart.')
     },
     onError: (error) => {
       handleMutationError(error, 'Failed to remove cart item')
@@ -118,6 +127,7 @@ export function useCart({
     onSuccess: (data) => {
       queryClient.setQueryData(cartQueryKey, data)
       setStatusMessage('Cart cleared.')
+      notifyInfo('Cart cleared.')
     },
     onError: (error) => {
       handleMutationError(error, 'Failed to clear cart')
@@ -149,6 +159,7 @@ export function useCart({
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ['cart', accessToken] })
       setStatusMessage('Order placed successfully.')
+      notifySuccess('Order placed successfully.')
     },
     onError: (error) => {
       handleMutationError(error, 'Order placement failed')

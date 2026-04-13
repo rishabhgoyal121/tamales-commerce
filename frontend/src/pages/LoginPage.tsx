@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Seo } from '@/components/seo/Seo'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { parseApiValidationDetails } from '@/lib/api-error'
 import { type LoginFormValues, loginSchema } from '@/lib/validation/auth'
@@ -48,13 +49,15 @@ export function LoginPage() {
   const showRootError = !!errors.root && submitCount > 0
 
   return (
-    <Card className="mx-auto max-w-xl border-slate-200/80 bg-white/95">
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>Access your account to use cart and checkout.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4" onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
+    <>
+      <Seo title="Login | Tamales Commerce" description="Sign in to access cart, checkout, and order history." />
+      <Card className="mx-auto max-w-xl border-slate-200/80 bg-white/95">
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Access your account to use cart and checkout.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
           <div className="space-y-2">
             <Label htmlFor="login-email">Email</Label>
             <Input
@@ -89,13 +92,14 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-4 text-sm text-muted-foreground">
-          No account yet?{' '}
-          <Link to="/signup" className="font-medium text-foreground underline">
-            Create one
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+          <p className="mt-4 text-sm text-muted-foreground">
+            No account yet?{' '}
+            <Link to="/signup" className="font-medium text-foreground underline">
+              Create one
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    </>
   )
 }
