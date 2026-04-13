@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -196,6 +197,12 @@ export function OrdersPage() {
                     <span className="text-xs text-muted-foreground">
                       {new Date(order.createdAt).toLocaleString()}
                     </span>
+                    <Link
+                      to={`/orders/${order.id}`}
+                      className="ml-auto inline-flex items-center rounded-md border border-slate-200 px-2 py-0.5 text-xs font-medium hover:bg-slate-50"
+                    >
+                      View details
+                    </Link>
                   </div>
                 </article>
               ))}

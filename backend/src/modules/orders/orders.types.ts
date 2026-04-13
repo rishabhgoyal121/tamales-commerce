@@ -66,3 +66,43 @@ export type OrderStatusTransitionHistoryResult = {
     createdAt: Date
   }>
 }
+
+export type CustomerOrderDetailResult = {
+  data: {
+    id: string
+    userId: string
+    status: OrderStatus
+    paymentStatus: PaymentStatus
+    subtotalCents: number
+    discountCents: number
+    shippingCents: number
+    taxCents: number
+    totalCents: number
+    createdAt: Date
+    updatedAt: Date
+    address: {
+      fullName: string
+      line1: string
+      line2: string | null
+      city: string
+      state: string
+      postalCode: string
+      country: string
+    }
+    items: Array<{
+      id: string
+      productId: string
+      titleSnapshot: string
+      unitPriceCents: number
+      quantity: number
+      lineTotalCents: number
+    }>
+    statusTransitions: Array<{
+      id: string
+      fromStatus: OrderStatus
+      toStatus: OrderStatus
+      note: string | null
+      createdAt: Date
+    }>
+  }
+}

@@ -10,6 +10,7 @@ import { AdminOrdersPage } from '@/pages/AdminOrdersPage'
 import { CartPage } from '@/pages/CartPage'
 import { CheckoutPreviewPage } from '@/pages/CheckoutPreviewPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { OrderDetailPage } from '@/pages/OrderDetailPage'
 import { OrdersPage } from '@/pages/OrdersPage'
 import { ProductsPage } from '@/pages/ProductsPage'
 import { SignupPage } from '@/pages/SignupPage'
@@ -39,6 +40,7 @@ function AppRoutes() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:orderId" element={<OrderDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout-preview" element={<CheckoutPreviewPage />} />
 

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express'
 import { AppError } from '../../../shared/errors/app-error.js'
 import {
+  getCustomerOrderDetailCoreController,
   listAdminOrderStatusTransitionsCoreController,
   listAdminOrdersCoreController,
   listCustomerOrdersCoreController,
@@ -23,6 +24,20 @@ export async function listMyOrdersApiController(req: Request, res: Response) {
     req.query as Record<string, unknown>,
   )
 
+  res.json(result)
+}
+
+export async function getMyOrderDetailApiController(req: Request, res: Response) {
+  if (!req.auth) {
+    throw new AppError('UNAUTHORIZED', 'Authentication required', 401)
+  }
+
+  const orderId = getOrderIdFromParams(req)
+  if (!orderId) {
+    throw new AppError('VALIDATION_ERROR', 'orderId path parameter is required', 422)
+  }
+
+  const result = await getCustomerOrderDetailCoreController(req.auth.userId, orderId)
   res.json(result)
 }
 

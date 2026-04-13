@@ -2,6 +2,7 @@ import { prisma } from '../../../shared/prisma/client.js'
 import { AppError } from '../../../shared/errors/app-error.js'
 import type {
   AdminOrderListQuery,
+  CustomerOrderDetailResult,
   CustomerOrderListQuery,
   OrderStatusTransitionHistoryResult,
   OrderListResult,
@@ -194,5 +195,74 @@ export async function listOrderStatusTransitions(
       note: transition.note,
       createdAt: transition.createdAt,
     })),
+  }
+}
+
+export async function getCustomerOrderDetailById(
+  userId: string,
+  orderId: string,
+): Promise<CustomerOrderDetailResult | null> {
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      userId,
+    },
+    select: {
+      id: true,
+      userId: true,
+      status: true,
+      paymentStatus: true,
+      subtotalCents: true,
+      discountCents: true,
+      shippingCents: true,
+      taxCents: true,
+      totalCents: true,
+      createdAt: true,
+      updatedAt: true,
+      address: {
+        select: {
+          fullName: true,
+          line1: true,
+          line2: true,
+          city: true,
+          state: true,
+          postalCode: true,
+          country: true,
+        },
+      },
+      items: {
+        select: {
+          id: true,
+          productId: true,
+          titleSnapshot: true,
+          unitPriceCents: true,
+          quantity: true,
+        },
+      },
+      statusTransitions: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          fromStatus: true,
+          toStatus: true,
+          note: true,
+          createdAt: true,
+        },
+      },
+    },
+  })
+
+  if (!order) {
+    return null
+  }
+
+  return {
+    data: {
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        lineTotalCents: item.unitPriceCents * item.quantity,
+      })),
+    },
   }
 }

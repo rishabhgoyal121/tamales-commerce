@@ -1,6 +1,7 @@
 import type { OrderStatus, PaymentStatus } from '@prisma/client'
 import { AppError } from '../../../shared/errors/app-error.js'
 import {
+  getCustomerOrderDetailById,
   getOrderStatusById,
   listAdminOrders,
   listCustomerOrders,
@@ -9,6 +10,7 @@ import {
 } from '../service/orders.service.js'
 import type {
   AdminOrderListQuery,
+  CustomerOrderDetailResult,
   CustomerOrderListQuery,
   OrderStatusTransitionHistoryResult,
   OrderListSort,
@@ -163,6 +165,19 @@ export async function listCustomerOrdersCoreController(
 ) {
   const query = normalizeCustomerOrderListQuery(rawQuery)
   return listCustomerOrders(userId, query)
+}
+
+export async function getCustomerOrderDetailCoreController(
+  userId: string,
+  orderId: string,
+): Promise<CustomerOrderDetailResult> {
+  const result = await getCustomerOrderDetailById(userId, orderId)
+
+  if (!result) {
+    throw new AppError('NOT_FOUND', 'Order not found', 404)
+  }
+
+  return result
 }
 
 export async function listAdminOrdersCoreController(rawQuery: Record<string, unknown>) {

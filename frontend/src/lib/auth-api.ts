@@ -114,6 +114,46 @@ export type OrderStatusTransitionHistoryResponse = {
   data: OrderStatusTransitionItem[]
 }
 
+export type MyOrderDetailResponse = {
+  data: {
+    id: string
+    userId: string
+    status: OrderStatus
+    paymentStatus: PaymentStatus
+    subtotalCents: number
+    discountCents: number
+    shippingCents: number
+    taxCents: number
+    totalCents: number
+    createdAt: string
+    updatedAt: string
+    address: {
+      fullName: string
+      line1: string
+      line2: string | null
+      city: string
+      state: string
+      postalCode: string
+      country: string
+    }
+    items: Array<{
+      id: string
+      productId: string
+      titleSnapshot: string
+      unitPriceCents: number
+      quantity: number
+      lineTotalCents: number
+    }>
+    statusTransitions: Array<{
+      id: string
+      fromStatus: OrderStatus
+      toStatus: OrderStatus
+      note: string | null
+      createdAt: string
+    }>
+  }
+}
+
 type AuthEnvelope = {
   data: {
     user: AuthUser
@@ -399,6 +439,15 @@ export async function listMyOrders(
 
   const querySuffix = query.toString()
   return request<OrderListResponse>(`/orders${querySuffix ? `?${querySuffix}` : ''}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+}
+
+export async function getMyOrderDetail(accessToken: string, orderId: string) {
+  return request<MyOrderDetailResponse>(`/orders/${orderId}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${accessToken}`,

@@ -341,3 +341,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: orders api/core/service, routes, openapi, admin orders frontend page, API client.
 - Follow-up Actions: Add pagination for long transition histories and actor role snapshots.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-026 | Customer Order Detail Read Model and Page
+- Date: 2026-04-13
+- Decision ID: DEC-026
+- Decision: Add owner-scoped `GET /orders/:orderId` endpoint and `/orders/:orderId` frontend page with items, pricing, address, and status timeline.
+- Context: Order list view alone was insufficient for complete ecommerce user lifecycle storytelling.
+- Options Considered: Keep summary-only list, add detailed read model endpoint + page.
+- Chosen Option: Detailed read model endpoint + page.
+- Rationale: Completes customer post-purchase UX and improves interview narrative around authenticated resource ownership.
+- Risks / Edge Cases: Larger payload for detailed view; future optimization may split timeline/items into lazy sub-queries.
+- Impacted Modules / Files: orders api/core/service/types/routes, openapi, frontend API client, orders page, new order detail page.
+- Follow-up Actions: Add customer invoice download and reorder action in future phase.
+- Supersedes: N/A
