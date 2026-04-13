@@ -39,9 +39,40 @@ type CartEnvelope = {
 
 type ApiErrorEnvelope = {
   error?: {
+    status?: number
     code?: string
     message?: string
+    details?: unknown
+    path?: string
+    requestId?: string
+    timestamp?: string
   }
+}
+
+export class ApiClientError extends Error {
+  public readonly status: number
+  public readonly code: string
+  public readonly details: unknown
+  public readonly requestId: string | null
+
+  constructor(
+    message: string,
+    status: number,
+    code: string,
+    details: unknown = [],
+    requestId: string | null = null,
+  ) {
+    super(message)
+    this.name = 'ApiClientError'
+    this.status = status
+    this.code = code
+    this.details = details
+    this.requestId = requestId
+  }
+}
+
+export function isApiClientError(error: unknown): error is ApiClientError {
+  return error instanceof ApiClientError
 }
 
 const API_BASE_URL =
@@ -59,17 +90,29 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`
+    let code = 'REQUEST_FAILED'
+    let details: unknown = []
+    let requestId: string | null = null
 
     try {
       const body = (await response.json()) as ApiErrorEnvelope
       if (body.error?.message) {
         message = body.error.message
       }
+      if (body.error?.code) {
+        code = body.error.code
+      }
+      if (body.error?.details !== undefined) {
+        details = body.error.details
+      }
+      if (body.error?.requestId) {
+        requestId = body.error.requestId
+      }
     } catch {
       // Keep default message when error body is missing.
     }
 
-    throw new Error(message)
+    throw new ApiClientError(message, response.status, code, details, requestId)
   }
 
   if (response.status === 204) {

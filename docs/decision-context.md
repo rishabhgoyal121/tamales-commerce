@@ -224,3 +224,29 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: shared UI components, auth/cart/checkout/admin pages, layout styling.
 - Follow-up Actions: Add frontend design guidelines for spacing, states, and color usage.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-017 | Standardized API Error Envelope with Request Traceability
+- Date: 2026-04-13
+- Decision ID: DEC-017
+- Decision: Standardize backend error envelope to include `status`, `path`, `requestId`, and `timestamp` for all error responses.
+- Context: Frontend needs predictable error parsing and debugging support in deployed environments.
+- Options Considered: Keep minimal error shape (`code/message/details`), enrich envelope with trace metadata.
+- Chosen Option: Enriched envelope with request trace metadata.
+- Rationale: Improves observability, production debugging speed, and consistent client handling.
+- Risks / Edge Cases: Slightly larger payload size and potential request-id inconsistencies if upstream proxies override headers.
+- Impacted Modules / Files: request context middleware, not-found handler, global error handler.
+- Follow-up Actions: Add request-id propagation in monitoring and logs dashboard.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-018 | Typed Frontend API Errors and Auth-aware Recovery
+- Date: 2026-04-13
+- Decision ID: DEC-018
+- Decision: Introduce `ApiClientError` and map `401/403/422` behaviors in frontend hooks.
+- Context: Generic `Error` handling made UX and debugging ambiguous across auth/cart flows.
+- Options Considered: Keep string-only error handling, typed client error model with status/code metadata.
+- Chosen Option: Typed client error model.
+- Rationale: Enables deterministic UI behavior by status class and cleaner hook-level control flow.
+- Risks / Edge Cases: Requires keeping client error parser aligned with backend contract.
+- Impacted Modules / Files: frontend API client and auth/cart hooks.
+- Follow-up Actions: Surface `requestId` in debug UI and QA logs when available.
+- Supersedes: N/A

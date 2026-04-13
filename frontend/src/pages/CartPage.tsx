@@ -12,7 +12,7 @@ import { formatCurrency } from '@/lib/currency'
 import { addCartItemSchema, type AddCartItemFormValues } from '@/lib/validation/cart'
 
 export function CartPage() {
-  const { accessToken, isAuthenticated, setStatusMessage } = useAuthSession()
+  const { accessToken, isAuthenticated, setStatusMessage, clearSession } = useAuthSession()
   const [couponCode] = useState('')
   const {
     register,
@@ -40,6 +40,7 @@ export function CartPage() {
     isAuthenticated,
     couponCode,
     setStatusMessage,
+    clearSession,
   })
 
   const handleAddToCart = (values: AddCartItemFormValues) => {

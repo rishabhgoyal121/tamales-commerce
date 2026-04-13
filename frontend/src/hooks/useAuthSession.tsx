@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   adminCheck,
+  isApiClientError,
   login,
   logout,
   me,
@@ -25,6 +26,7 @@ type AuthSessionContextValue = {
   checkMe: () => Promise<void>
   refresh: () => Promise<void>
   checkAdmin: () => Promise<void>
+  clearSession: (reason?: string) => void
   signOut: () => Promise<void>
 }
 
@@ -38,6 +40,29 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const [statusMessage, setStatusMessage] = useState('Checking existing session...')
 
   const queryClient = useQueryClient()
+
+  const clearSession = (reason = 'Session expired. Please login again.') => {
+    setUser(null)
+    setAccessToken('')
+    queryClient.removeQueries({ queryKey: ['cart'] })
+    queryClient.removeQueries({ queryKey: ['checkout-preview'] })
+    setStatusMessage(reason)
+  }
+
+  const mapApiError = (error: unknown, fallback: string) => {
+    if (isApiClientError(error)) {
+      if (error.status === 401) {
+        clearSession('Session expired. Please login again.')
+      }
+      return error.message
+    }
+
+    if (error instanceof Error) {
+      return error.message
+    }
+
+    return fallback
+  }
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -70,7 +95,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
           : 'Registration successful. You are now signed in.',
       )
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Authentication request failed')
+      setStatusMessage(mapApiError(error, 'Authentication request failed'))
       throw error
     } finally {
       setBusy(false)
@@ -83,7 +108,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       const response = await me(accessToken)
       setStatusMessage(`Authenticated as ${response.data.email} (${response.data.role}).`)
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Failed to load /auth/me')
+      setStatusMessage(mapApiError(error, 'Failed to load /auth/me'))
       throw error
     } finally {
       setBusy(false)
@@ -98,7 +123,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setAccessToken(response.data.accessToken)
       setStatusMessage('Session refreshed. Access token rotated.')
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Session refresh failed')
+      setStatusMessage(mapApiError(error, 'Session refresh failed'))
       throw error
     } finally {
       setBusy(false)
@@ -111,7 +136,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       const response = await adminCheck(accessToken)
       setStatusMessage(response.data.message)
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Admin check failed')
+      setStatusMessage(mapApiError(error, 'Admin check failed'))
       throw error
     } finally {
       setBusy(false)
@@ -149,6 +174,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       refresh,
       checkAdmin,
       signOut,
+      clearSession,
     }),
     [user, accessToken, bootstrapping, busy, statusMessage],
   )

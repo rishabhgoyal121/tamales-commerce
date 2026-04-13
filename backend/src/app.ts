@@ -12,6 +12,7 @@ import { router } from './routes.js'
 import { logger } from './shared/logger/logger.js'
 import { errorHandler } from './shared/middleware/error-handler.js'
 import { notFoundHandler } from './shared/middleware/not-found.js'
+import { requestContext } from './shared/middleware/request-context.js'
 
 const openApiPath = path.resolve(process.cwd(), 'openapi/openapi.yaml')
 const openApiDocument = parse(fs.readFileSync(openApiPath, 'utf8'))
@@ -29,6 +30,7 @@ app.use(
 )
 app.use(express.json())
 app.use(cookieParser())
+app.use(requestContext)
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -38,7 +40,7 @@ app.use(
   }),
 )
 app.use((req, _res, next) => {
-  logger.info({ method: req.method, path: req.path }, 'Incoming request')
+  logger.info({ requestId: req.requestId, method: req.method, path: req.path }, 'Incoming request')
   next()
 })
 

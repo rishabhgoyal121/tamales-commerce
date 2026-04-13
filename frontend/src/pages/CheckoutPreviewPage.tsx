@@ -10,7 +10,7 @@ import { formatCurrency } from '@/lib/currency'
 import { couponSchema, type CouponFormValues } from '@/lib/validation/cart'
 
 export function CheckoutPreviewPage() {
-  const { accessToken, isAuthenticated, setStatusMessage } = useAuthSession()
+  const { accessToken, isAuthenticated, setStatusMessage, clearSession } = useAuthSession()
   const { register, watch, formState: { errors } } = useForm<CouponFormValues>({
     resolver: zodResolver(couponSchema),
     defaultValues: {
@@ -24,6 +24,7 @@ export function CheckoutPreviewPage() {
     isAuthenticated,
     couponCode,
     setStatusMessage,
+    clearSession,
   })
 
   return (

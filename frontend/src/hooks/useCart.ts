@@ -4,6 +4,7 @@ import {
   addCartItem,
   clearCart,
   getCart,
+  isApiClientError,
   previewCheckout,
   removeCartItem,
   updateCartItemQuantity,
@@ -15,11 +16,32 @@ type UseCartParams = {
   isAuthenticated: boolean
   couponCode: string
   setStatusMessage: (value: string) => void
+  clearSession: (reason?: string) => void
 }
 
-export function useCart({ accessToken, isAuthenticated, couponCode, setStatusMessage }: UseCartParams) {
+export function useCart({
+  accessToken,
+  isAuthenticated,
+  couponCode,
+  setStatusMessage,
+  clearSession,
+}: UseCartParams) {
   const queryClient = useQueryClient()
   const cartQueryKey = ['cart', accessToken]
+  const handleMutationError = (error: unknown, fallback: string) => {
+    if (isApiClientError(error)) {
+      if (error.status === 401) {
+        clearSession('Session expired during cart operation. Please login again.')
+      } else if (error.status === 403) {
+        setStatusMessage('Forbidden: this action is not allowed for your role.')
+      } else {
+        setStatusMessage(error.message)
+      }
+      return
+    }
+
+    setStatusMessage(error instanceof Error ? error.message : fallback)
+  }
 
   const cartQuery = useQuery({
     queryKey: cartQueryKey,
@@ -35,7 +57,7 @@ export function useCart({ accessToken, isAuthenticated, couponCode, setStatusMes
       setStatusMessage('Item added to cart.')
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : 'Failed to add item to cart')
+      handleMutationError(error, 'Failed to add item to cart')
     },
   })
 
@@ -71,7 +93,7 @@ export function useCart({ accessToken, isAuthenticated, couponCode, setStatusMes
       if (context?.previous) {
         queryClient.setQueryData(cartQueryKey, context.previous)
       }
-      setStatusMessage(error instanceof Error ? error.message : 'Failed to update cart item')
+      handleMutationError(error, 'Failed to update cart item')
     },
     onSuccess: (data) => {
       queryClient.setQueryData(cartQueryKey, data)
@@ -85,7 +107,7 @@ export function useCart({ accessToken, isAuthenticated, couponCode, setStatusMes
       setStatusMessage('Item removed from cart.')
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : 'Failed to remove cart item')
+      handleMutationError(error, 'Failed to remove cart item')
     },
   })
 
@@ -96,7 +118,7 @@ export function useCart({ accessToken, isAuthenticated, couponCode, setStatusMes
       setStatusMessage('Cart cleared.')
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : 'Failed to clear cart')
+      handleMutationError(error, 'Failed to clear cart')
     },
   })
 
@@ -104,7 +126,7 @@ export function useCart({ accessToken, isAuthenticated, couponCode, setStatusMes
     mutationKey: ['checkout-preview', accessToken],
     mutationFn: () => previewCheckout(accessToken, couponCode.trim() || undefined),
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : 'Checkout preview failed')
+      handleMutationError(error, 'Checkout preview failed')
     },
   })
 
