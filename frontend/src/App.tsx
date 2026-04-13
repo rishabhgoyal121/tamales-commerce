@@ -18,6 +18,7 @@ const CartPage = lazy(async () => ({ default: (await import('@/pages/CartPage'))
 const CheckoutPreviewPage = lazy(async () => ({ default: (await import('@/pages/CheckoutPreviewPage')).CheckoutPreviewPage }))
 const AdminPage = lazy(async () => ({ default: (await import('@/pages/AdminPage')).AdminPage }))
 const AdminOrdersPage = lazy(async () => ({ default: (await import('@/pages/AdminOrdersPage')).AdminOrdersPage }))
+const AdminCatalogPage = lazy(async () => ({ default: (await import('@/pages/AdminCatalogPage')).AdminCatalogPage }))
 
 function AppRoutes() {
   const { bootstrapping } = useAuthSession()
@@ -47,6 +48,7 @@ function AppRoutes() {
 
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/catalog" element={<AdminCatalogPage />} />
               <Route path="/admin/orders" element={<AdminOrdersPage />} />
             </Route>
           </Route>

@@ -33,6 +33,14 @@ export type ProductListSort =
   | 'price_desc'
   | 'title_asc'
 
+export type AdminProductListSort =
+  | 'createdAt_desc'
+  | 'createdAt_asc'
+  | 'price_asc'
+  | 'price_desc'
+  | 'title_asc'
+  | 'updatedAt_desc'
+
 export type ProductListItem = {
   id: string
   title: string
@@ -44,6 +52,36 @@ export type ProductListItem = {
 
 export type ProductListResponse = {
   data: ProductListItem[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+export type AdminCategoryOption = {
+  id: string
+  name: string
+  slug: string
+}
+
+export type AdminProductListItem = {
+  id: string
+  title: string
+  slug: string
+  description: string
+  priceCents: number
+  isActive: boolean
+  categoryId: string
+  categoryName: string
+  inventoryQty: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type AdminProductListResponse = {
+  data: AdminProductListItem[]
   meta: {
     page: number
     limit: number
@@ -554,5 +592,122 @@ export async function listAdminOrderStatusTransitions(accessToken: string, order
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+  })
+}
+
+export async function listAdminCategories(accessToken: string) {
+  return request<{ data: AdminCategoryOption[] }>('/admin/categories', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+}
+
+export async function listAdminProducts(
+  accessToken: string,
+  params: {
+    q?: string
+    categoryId?: string
+    isActive?: boolean
+    page?: number
+    limit?: number
+    sort?: AdminProductListSort
+  },
+) {
+  const query = new URLSearchParams()
+
+  if (params.q?.trim()) {
+    query.set('q', params.q.trim())
+  }
+  if (params.categoryId) {
+    query.set('categoryId', params.categoryId)
+  }
+  if (params.isActive !== undefined) {
+    query.set('isActive', String(params.isActive))
+  }
+  if (params.page !== undefined) {
+    query.set('page', String(params.page))
+  }
+  if (params.limit !== undefined) {
+    query.set('limit', String(params.limit))
+  }
+  if (params.sort) {
+    query.set('sort', params.sort)
+  }
+
+  const querySuffix = query.toString()
+  return request<AdminProductListResponse>(`/admin/products${querySuffix ? `?${querySuffix}` : ''}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+}
+
+export async function createAdminProduct(
+  accessToken: string,
+  payload: {
+    title: string
+    slug: string
+    description: string
+    priceCents: number
+    categoryId: string
+    isActive: boolean
+    inventoryQty: number
+  },
+) {
+  return request<{ data: AdminProductListItem }>('/admin/products', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function updateAdminProduct(
+  accessToken: string,
+  payload: {
+    productId: string
+    title?: string
+    description?: string
+    priceCents?: number
+    categoryId?: string
+    isActive?: boolean
+  },
+) {
+  return request<{ data: AdminProductListItem }>(`/admin/products/${payload.productId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      title: payload.title,
+      description: payload.description,
+      priceCents: payload.priceCents,
+      categoryId: payload.categoryId,
+      isActive: payload.isActive,
+    }),
+  })
+}
+
+export async function updateAdminProductInventory(
+  accessToken: string,
+  payload: { productId: string; quantity: number },
+) {
+  return request<{
+    data: {
+      id: string
+      productId: string
+      quantity: number
+      updatedAt: string
+    }
+  }>(`/admin/products/${payload.productId}/inventory`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ quantity: payload.quantity }),
   })
 }

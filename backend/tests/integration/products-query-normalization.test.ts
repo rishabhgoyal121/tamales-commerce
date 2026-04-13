@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { AppError } from '../../src/shared/errors/app-error.js'
-import { normalizeProductListQuery } from '../../src/modules/products/core/products.core-controller.js'
+import {
+  normalizeAdminProductListQuery,
+  normalizeProductListQuery,
+} from '../../src/modules/products/core/products.core-controller.js'
 
 describe('product list query normalization', () => {
   it('applies defaults for missing query params', () => {
@@ -53,6 +56,51 @@ describe('product list query normalization', () => {
       page: 2,
       limit: 20,
       sort: 'price_asc',
+    })
+  })
+})
+
+describe('admin product list query normalization', () => {
+  it('applies defaults for missing query params', () => {
+    const normalized = normalizeAdminProductListQuery({})
+
+    expect(normalized).toMatchObject({
+      page: 1,
+      limit: 12,
+      sort: 'updatedAt_desc',
+    })
+  })
+
+  it('rejects unknown keys', () => {
+    expect(() => normalizeAdminProductListQuery({ foo: 'bar' })).toThrowError(AppError)
+  })
+
+  it('parses boolean active filter', () => {
+    const normalized = normalizeAdminProductListQuery({ isActive: 'true' })
+    expect(normalized.isActive).toBe(true)
+  })
+
+  it('rejects invalid boolean active filter', () => {
+    expect(() => normalizeAdminProductListQuery({ isActive: 'yes' })).toThrowError(AppError)
+  })
+
+  it('parses valid admin filters and sort', () => {
+    const normalized = normalizeAdminProductListQuery({
+      q: 'lamp',
+      categoryId: 'cat_1',
+      isActive: 'false',
+      page: '3',
+      limit: '15',
+      sort: 'price_desc',
+    })
+
+    expect(normalized).toEqual({
+      q: 'lamp',
+      categoryId: 'cat_1',
+      isActive: false,
+      page: 3,
+      limit: 15,
+      sort: 'price_desc',
     })
   })
 })

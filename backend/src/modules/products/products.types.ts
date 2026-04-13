@@ -5,6 +5,14 @@ export type ProductListSort =
   | 'price_desc'
   | 'title_asc'
 
+export type AdminProductListSort =
+  | 'createdAt_desc'
+  | 'createdAt_asc'
+  | 'price_asc'
+  | 'price_desc'
+  | 'title_asc'
+  | 'updatedAt_desc'
+
 export type ProductListQuery = {
   q?: string
   categoryId?: string
@@ -32,4 +40,65 @@ export type ProductListResult = {
     total: number
     totalPages: number
   }
+}
+
+export type AdminProductListQuery = {
+  q?: string
+  categoryId?: string
+  isActive?: boolean
+  page: number
+  limit: number
+  sort: AdminProductListSort
+}
+
+export type AdminProductListItem = {
+  id: string
+  title: string
+  slug: string
+  description: string
+  priceCents: number
+  isActive: boolean
+  categoryId: string
+  categoryName: string
+  inventoryQty: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type AdminProductListResult = {
+  data: AdminProductListItem[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+export type AdminCategoryOption = {
+  id: string
+  name: string
+  slug: string
+}
+
+export type CreateAdminProductInput = {
+  title: string
+  slug: string
+  description: string
+  priceCents: number
+  categoryId: string
+  isActive: boolean
+  inventoryQty: number
+}
+
+export type UpdateAdminProductInput = {
+  title?: string
+  description?: string
+  priceCents?: number
+  categoryId?: string
+  isActive?: boolean
+}
+
+export type UpdateAdminProductInventoryInput = {
+  quantity: number
 }

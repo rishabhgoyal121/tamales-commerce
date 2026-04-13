@@ -22,10 +22,16 @@ export function AdminPage() {
             <Button onClick={() => void checkAdmin()} disabled={busy}>
               Verify Admin Access
             </Button>
-            <Link
-              to="/admin/orders"
-              className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-2.5 text-sm font-medium transition hover:bg-muted"
-            >
+          <Link
+            to="/admin/catalog"
+            className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-2.5 text-sm font-medium transition hover:bg-muted"
+          >
+            Open Admin Catalog
+          </Link>
+          <Link
+            to="/admin/orders"
+            className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-2.5 text-sm font-medium transition hover:bg-muted"
+          >
               Open Admin Orders
             </Link>
           </div>

@@ -258,6 +258,19 @@ This document tracks architecture and implementation decisions over time.
 - Context: Status-only error messaging is insufficient for good UX and interviewer-grade validation handling.
 - Options Considered: Show generic toast/status errors, map backend field errors inline.
 - Chosen Option: Inline field-level mapping.
+
+## 2026-04-13 | DEC-020 | Admin Catalog Split with Dedicated Route Group and Inventory Controls
+- Date: 2026-04-13
+- Decision ID: DEC-020
+- Decision: Add dedicated admin catalog capabilities under `/admin/*` with backend endpoints for create product, admin listing, status updates, and inventory updates.
+- Context: Needed production-like operational tooling so admins can upload products and adjust stock without DB access.
+- Options Considered: Keep admin limited to order management, add lightweight admin catalog flows.
+- Chosen Option: Add admin catalog flows with strict RBAC and layered API/core/service architecture.
+- Rationale: Improves usability and realism of ecommerce operations while preserving backend architecture discipline.
+- Risks / Edge Cases: Slug collisions, category mismatches, and inventory race conditions if multiple admins update same SKU simultaneously.
+- Impacted Modules / Files: `backend/src/modules/products/*`, `backend/src/routes.ts`, `frontend/src/pages/AdminCatalogPage.tsx`, `frontend/src/lib/auth-api.ts`, admin navigation/routes.
+- Follow-up Actions: Add edit forms for price/title/description in admin grid and add audit trail for inventory changes.
+- Supersedes: N/A
 - Rationale: Faster user correction loops and stronger client-server contract alignment.
 - Risks / Edge Cases: Requires key alignment between backend field names and frontend form fields.
 - Impacted Modules / Files: auth/cart/checkout forms, frontend API error parsing utility.

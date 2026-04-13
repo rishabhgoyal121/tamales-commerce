@@ -1,6 +1,13 @@
 import { Router } from 'express'
 import { getHealthApiController } from './modules/health/api/health-api.controller.js'
-import { listProductsApiController } from './modules/products/api/products-api.controller.js'
+import {
+  createAdminProductApiController,
+  listAdminCategoriesApiController,
+  listAdminProductsApiController,
+  listProductsApiController,
+  updateAdminProductApiController,
+  updateAdminProductInventoryApiController,
+} from './modules/products/api/products-api.controller.js'
 import {
   addCartItemApiController,
   clearCartApiController,
@@ -40,6 +47,16 @@ router.post('/auth/refresh', refreshApiController)
 router.post('/auth/logout', logoutApiController)
 router.get('/auth/me', authenticate, meApiController)
 router.get('/auth/admin-check', authenticate, requireRole('ADMIN'), adminCheckApiController)
+router.get('/admin/categories', authenticate, requireRole('ADMIN'), listAdminCategoriesApiController)
+router.get('/admin/products', authenticate, requireRole('ADMIN'), listAdminProductsApiController)
+router.post('/admin/products', authenticate, requireRole('ADMIN'), createAdminProductApiController)
+router.patch('/admin/products/:productId', authenticate, requireRole('ADMIN'), updateAdminProductApiController)
+router.patch(
+  '/admin/products/:productId/inventory',
+  authenticate,
+  requireRole('ADMIN'),
+  updateAdminProductInventoryApiController,
+)
 router.get('/orders', authenticate, listMyOrdersApiController)
 router.get('/orders/:orderId', authenticate, getMyOrderDetailApiController)
 router.get('/admin/orders', authenticate, requireRole('ADMIN'), listAdminOrdersApiController)

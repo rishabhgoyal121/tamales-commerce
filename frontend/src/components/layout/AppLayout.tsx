@@ -109,6 +109,11 @@ export function AppLayout() {
                 Admin
               </NavLink>
               {user?.role === 'ADMIN' ? (
+                <NavLink to="/admin/catalog" className={navClassName}>
+                  Admin Catalog
+                </NavLink>
+              ) : null}
+              {user?.role === 'ADMIN' ? (
                 <NavLink to="/admin/orders" className={navClassName}>
                   Admin Orders
                 </NavLink>
