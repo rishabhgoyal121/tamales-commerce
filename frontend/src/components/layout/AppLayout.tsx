@@ -33,9 +33,16 @@ export function AppLayout() {
           </div>
 
           <nav className="mt-4 flex flex-wrap items-center gap-2">
-            <NavLink to="/auth" className={navClassName}>
-              Auth
-            </NavLink>
+            {!isAuthenticated ? (
+              <>
+                <NavLink to="/login" className={navClassName}>
+                  Login
+                </NavLink>
+                <NavLink to="/signup" className={navClassName}>
+                  Sign Up
+                </NavLink>
+              </>
+            ) : null}
             <NavLink to="/cart" className={navClassName}>
               Cart
             </NavLink>

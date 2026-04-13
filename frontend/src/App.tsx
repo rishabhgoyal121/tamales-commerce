@@ -1,16 +1,18 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AdminRoute } from '@/components/routes/AdminRoute'
+import { PublicOnlyRoute } from '@/components/routes/PublicOnlyRoute'
 import { ProtectedRoute } from '@/components/routes/ProtectedRoute'
 import { AuthSessionProvider, useAuthSession } from '@/hooks/useAuthSession'
 import { AdminPage } from '@/pages/AdminPage'
-import { AuthPage } from '@/pages/AuthPage'
 import { CartPage } from '@/pages/CartPage'
 import { CheckoutPreviewPage } from '@/pages/CheckoutPreviewPage'
+import { LoginPage } from '@/pages/LoginPage'
+import { SignupPage } from '@/pages/SignupPage'
 
 function RootRedirect() {
   const { isAuthenticated } = useAuthSession()
-  return <Navigate to={isAuthenticated ? '/cart' : '/auth'} replace />
+  return <Navigate to={isAuthenticated ? '/cart' : '/login'} replace />
 }
 
 function AppRoutes() {
@@ -18,7 +20,12 @@ function AppRoutes() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<RootRedirect />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth" element={<Navigate to="/login" replace />} />
+
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route path="/cart" element={<CartPage />} />
