@@ -38,3 +38,8 @@ npm run dev
 
 ## Decisions Log
 - See `docs/decision-context.md`
+
+## Deployment
+- Deployment runbook: `docs/deployment.md`
+- Render blueprint config: `render.yaml`
+- Vercel SPA routing config: `frontend/vercel.json`

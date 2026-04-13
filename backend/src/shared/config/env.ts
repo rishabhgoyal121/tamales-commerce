@@ -7,6 +7,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().min(1),
   JWT_ACCESS_SECRET: z.string().min(16),
   JWT_REFRESH_SECRET: z.string().min(16),
+  FRONTEND_ORIGIN: z.string().url().optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)

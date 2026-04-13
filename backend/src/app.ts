@@ -17,9 +17,16 @@ const openApiPath = path.resolve(process.cwd(), 'openapi/openapi.yaml')
 const openApiDocument = parse(fs.readFileSync(openApiPath, 'utf8'))
 
 export const app = express()
+const isProduction = process.env.NODE_ENV === 'production'
 
 app.use(helmet())
-app.use(cors())
+app.set('trust proxy', 1)
+app.use(
+  cors({
+    origin: isProduction ? process.env.FRONTEND_ORIGIN : true,
+    credentials: true,
+  }),
+)
 app.use(express.json())
 app.use(cookieParser())
 app.use(

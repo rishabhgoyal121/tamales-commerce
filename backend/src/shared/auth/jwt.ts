@@ -45,10 +45,12 @@ export function getRefreshTokenExpiryDate() {
 }
 
 export function getRefreshCookieOptions() {
+  const isProduction = env.NODE_ENV === 'production'
+
   return {
     httpOnly: true,
-    sameSite: 'lax' as const,
-    secure: env.NODE_ENV === 'production',
+    sameSite: isProduction ? ('none' as const) : ('lax' as const),
+    secure: isProduction,
     path: '/api/v1/auth',
     maxAge: REFRESH_TTL_SECONDS * 1000,
   }
