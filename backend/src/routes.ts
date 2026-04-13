@@ -1,8 +1,44 @@
 import { Router } from 'express'
 import { getHealthApiController } from './modules/health/api/health-api.controller.js'
 import { listProductsApiController } from './modules/products/api/products-api.controller.js'
+import {
+  addCartItemApiController,
+  clearCartApiController,
+  getCartApiController,
+  removeCartItemApiController,
+  updateCartItemApiController,
+} from './modules/cart/api/cart-api.controller.js'
+import {
+  listAdminOrdersApiController,
+  listMyOrdersApiController,
+} from './modules/orders/api/orders-api.controller.js'
+import { previewCheckoutApiController } from './modules/checkout/api/checkout-api.controller.js'
+import {
+  adminCheckApiController,
+  loginApiController,
+  logoutApiController,
+  meApiController,
+  refreshApiController,
+  registerApiController,
+} from './modules/auth/api/auth-api.controller.js'
+import { authenticate } from './shared/middleware/authenticate.js'
+import { requireRole } from './shared/middleware/require-role.js'
 
 export const router = Router()
 
 router.get('/health', getHealthApiController)
 router.get('/products', listProductsApiController)
+router.post('/auth/register', registerApiController)
+router.post('/auth/login', loginApiController)
+router.post('/auth/refresh', refreshApiController)
+router.post('/auth/logout', logoutApiController)
+router.get('/auth/me', authenticate, meApiController)
+router.get('/auth/admin-check', authenticate, requireRole('ADMIN'), adminCheckApiController)
+router.get('/orders', authenticate, listMyOrdersApiController)
+router.get('/admin/orders', authenticate, requireRole('ADMIN'), listAdminOrdersApiController)
+router.get('/cart', authenticate, getCartApiController)
+router.post('/cart/items', authenticate, addCartItemApiController)
+router.patch('/cart/items/:itemId', authenticate, updateCartItemApiController)
+router.delete('/cart/items/:itemId', authenticate, removeCartItemApiController)
+router.delete('/cart', authenticate, clearCartApiController)
+router.post('/checkout/preview', authenticate, previewCheckoutApiController)

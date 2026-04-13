@@ -120,3 +120,81 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: backend integration test setup.
 - Follow-up Actions: Re-enable full HTTP integration tests in CI or unrestricted local env.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-009 | Refresh Token Rotation with DB-backed Revocation
+- Date: 2026-04-13
+- Decision ID: DEC-009
+- Decision: Use access token + refresh token with refresh-token hashing and DB persistence.
+- Context: Need secure, interview-grade auth beyond naive stateless JWT-only approach.
+- Options Considered: Stateless long-lived JWTs, rotating refresh tokens with revocation store.
+- Chosen Option: Rotating refresh tokens, hash stored in DB, revoke on rotation/logout.
+- Rationale: Limits blast radius of token leaks and supports forced invalidation.
+- Risks / Edge Cases: Token reuse detection not yet implemented; multiple sessions can accumulate tokens.
+- Impacted Modules / Files: auth service/core/api, Prisma schema, JWT utilities.
+- Follow-up Actions: Add device/session metadata and global sign-out endpoint.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-010 | RBAC Enforcement via Middleware
+- Date: 2026-04-13
+- Decision ID: DEC-010
+- Decision: Centralize authorization checks with `authenticate` and `requireRole` middleware.
+- Context: Avoid repeated role checks across controllers.
+- Options Considered: Inline controller checks, centralized middleware.
+- Chosen Option: Middleware-based checks.
+- Rationale: Consistent, testable, and easy to reuse across modules.
+- Risks / Edge Cases: Incorrect route wiring can bypass checks if middleware omitted.
+- Impacted Modules / Files: routes and shared middleware.
+- Follow-up Actions: Add route-level checklist for protected endpoints.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-011 | Allow-List Query Strategy for Product Listings
+- Date: 2026-04-13
+- Decision ID: DEC-011
+- Decision: Enforce allow-listed query params and sort enums for product listing endpoints.
+- Context: Prevent unstable/dynamic query behavior and keep API contracts explicit.
+- Options Considered: Accept arbitrary query params, allow-list with validation/normalization.
+- Chosen Option: Allow-list + normalization in core controller.
+- Rationale: Improves security posture, predictability, and API evolvability.
+- Risks / Edge Cases: New filters require coordinated code + docs updates.
+- Impacted Modules / Files: products api/core/service, tests, openapi docs.
+- Follow-up Actions: Reuse this pattern for orders/coupons/admin listings.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-012 | Reused Allow-List Query Pattern for Orders and Admin Listings
+- Date: 2026-04-13
+- Decision ID: DEC-012
+- Decision: Apply strict allow-listed query parsing to `/orders` and `/admin/orders` list endpoints.
+- Context: Keep list endpoint behavior consistent across modules and roles.
+- Options Considered: Ad-hoc query parsing per endpoint, shared allow-list normalization strategy.
+- Chosen Option: Module-level normalizers with explicit allowed keys and sort enums.
+- Rationale: Prevents accidental broad filters and improves predictability/testing.
+- Risks / Edge Cases: Requires explicit updates when introducing new filter capabilities.
+- Impacted Modules / Files: orders api/core/service, routes, tests, openapi docs.
+- Follow-up Actions: Apply identical conventions for future admin list endpoints (coupons/products/users).
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-013 | Cart Quantity UX with Optimistic + Debounced Sync
+- Date: 2026-04-13
+- Decision ID: DEC-013
+- Decision: Use local optimistic quantity updates with debounced server sync and rollback on mutation error.
+- Context: Rapid +/- clicks can trigger excessive network calls and stale writes.
+- Options Considered: Immediate per-click mutation, optimistic+debounced+versioned sync.
+- Chosen Option: Optimistic local updates + debounced mutations via React Query.
+- Rationale: Improves responsiveness while reducing backend write pressure.
+- Risks / Edge Cases: Temporary UI/server divergence if requests fail repeatedly.
+- Impacted Modules / Files: frontend cart UI and cart api client.
+- Follow-up Actions: Add request-id tracing and telemetry for cart update failure rate.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-014 | Checkout Preview Before Order Placement
+- Date: 2026-04-13
+- Decision ID: DEC-014
+- Decision: Introduce `POST /checkout/preview` prior to full order placement endpoint.
+- Context: Need pricing transparency and calculation validation before committing orders.
+- Options Considered: Direct order placement with implicit pricing, separate preview endpoint.
+- Chosen Option: Separate preview endpoint.
+- Rationale: Enables deterministic pricing checks and cleaner checkout UX.
+- Risks / Edge Cases: Price/stock can change between preview and placement.
+- Impacted Modules / Files: checkout api/core/service and cart flow.
+- Follow-up Actions: Validate and re-price again at final order placement.
+- Supersedes: N/A
