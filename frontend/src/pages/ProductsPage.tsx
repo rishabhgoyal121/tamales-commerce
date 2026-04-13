@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { SmartImage } from '@/components/common/SmartImage'
 import { Seo } from '@/components/seo/Seo'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
@@ -257,7 +258,7 @@ export function ProductsPage() {
                 {products.map((product) => (
                   <article key={product.id} className="rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm">
                     <div className="overflow-hidden rounded-md bg-slate-100">
-                      <img
+                      <SmartImage
                         src={productImageBySlug[product.slug] ?? 'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=900&q=80'}
                         alt={product.title}
                         loading="lazy"

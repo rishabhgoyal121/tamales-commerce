@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { SmartImage } from '@/components/common/SmartImage'
 import type { MarketplaceHeroSlide } from '@/lib/marketplace-data'
 
 type HeroCarouselProps = {
@@ -25,7 +26,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
       >
         {slides.map((slide) => (
           <article key={slide.id} className="relative min-w-full">
-            <img
+            <SmartImage
               src={slide.imageUrl}
               alt={slide.title}
               className="h-[280px] w-full object-cover opacity-70 sm:h-[360px]"

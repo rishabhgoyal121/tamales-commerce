@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { SmartImage } from '@/components/common/SmartImage'
 import type { MarketplaceCategoryCard } from '@/lib/marketplace-data'
 
 type CategoryDealsGridProps = {
@@ -13,7 +14,7 @@ export function CategoryDealsGrid({ title, items }: CategoryDealsGridProps) {
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((item) => (
           <Link key={item.id} to={item.href} className="group overflow-hidden rounded-lg border border-slate-200/80">
-            <img
+            <SmartImage
               src={item.imageUrl}
               alt={item.title}
               loading="lazy"

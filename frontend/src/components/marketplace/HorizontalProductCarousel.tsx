@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { SmartImage } from '@/components/common/SmartImage'
 import type { MarketplaceProductCard } from '@/lib/marketplace-data'
 
 type HorizontalProductCarouselProps = {
@@ -18,7 +19,7 @@ export function HorizontalProductCarousel({ title, products }: HorizontalProduct
             className="group min-w-[220px] rounded-lg border border-slate-200/80 bg-slate-50/70 p-3"
           >
             <div className="relative overflow-hidden rounded-md bg-white">
-              <img
+              <SmartImage
                 src={product.imageUrl}
                 alt={product.title}
                 loading="lazy"
