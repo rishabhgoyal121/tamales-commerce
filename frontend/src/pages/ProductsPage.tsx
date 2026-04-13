@@ -11,7 +11,7 @@ import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
 import { addCartItem, listProducts, type ProductListSort } from '@/lib/auth-api'
 import { formatCurrency } from '@/lib/currency'
-import { notifyError, notifyInfo, notifySuccess } from '@/lib/notify'
+import { notifyError, notifyInfo, notifySuccessWithAction } from '@/lib/notify'
 
 const SORT_OPTIONS: Array<{ value: ProductListSort; label: string }> = [
   { value: 'createdAt_desc', label: 'Newest first' },
@@ -78,7 +78,10 @@ export function ProductsPage() {
     mutationFn: (productId: string) => addCartItem(accessToken, { productId, quantity: 1 }),
     onSuccess: () => {
       setStatusMessage('Added item to cart from catalog.')
-      notifySuccess('Added item to cart.')
+      notifySuccessWithAction('Added item to cart.', {
+        label: 'Open cart',
+        onClick: () => navigate('/cart'),
+      })
     },
     onError: (error) => {
       const message = toStatusMessage(error, 'Failed to add item to cart')
@@ -92,6 +95,7 @@ export function ProductsPage() {
 
   const canGoPrev = (meta?.page ?? page) > 1
   const canGoNext = meta ? meta.page < meta.totalPages : false
+  const currentCatalogPath = `/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
 
   const appliedFiltersText = useMemo(() => {
     const bits: string[] = []
@@ -164,11 +168,28 @@ export function ProductsPage() {
       const message = 'Please login to add products to cart.'
       setStatusMessage(message)
       notifyInfo(message)
-      navigate('/login')
+      navigate(`/login?next=${encodeURIComponent(currentCatalogPath)}`)
       return
     }
 
     addToCartMutation.mutate(productId)
+  }
+
+  const handleBuyNow = async (productId: string) => {
+    if (!isAuthenticated) {
+      const message = 'Please login to continue to checkout.'
+      setStatusMessage(message)
+      notifyInfo(message)
+      navigate(`/login?next=${encodeURIComponent('/checkout-preview')}`)
+      return
+    }
+
+    try {
+      await addToCartMutation.mutateAsync(productId)
+      navigate('/checkout-preview')
+    } catch {
+      // Handled by mutation onError.
+    }
   }
 
   return (
@@ -177,13 +198,15 @@ export function ProductsPage() {
         title="Products | Tamales Commerce"
         description="Browse and search products with server-side filters, sorting, and pagination."
       />
-      <Card className="border-slate-200/80 bg-white/95">
+      <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Products</CardTitle>
-          <CardDescription>Browse catalog with server-side filtering, sorting, and pagination.</CardDescription>
+          <CardDescription>
+            Browse catalog, add quickly to cart, or use Buy Now for direct checkout.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <section className="rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">
+          <section className="animate-fade-up rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">
             <div className="grid gap-3 md:grid-cols-4">
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="catalog-query">Search</Label>
@@ -256,7 +279,10 @@ export function ProductsPage() {
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {products.map((product) => (
-                  <article key={product.id} className="rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm">
+                  <article
+                    key={product.id}
+                    className="animate-fade-up rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                  >
                     <div className="overflow-hidden rounded-md bg-slate-100">
                       <SmartImage
                         src={productImageBySlug[product.slug] ?? 'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=900&q=80'}
@@ -269,13 +295,22 @@ export function ProductsPage() {
                     <p className="mt-2 text-xs text-muted-foreground">{product.slug}</p>
                     <h3 className="mt-1 text-base font-semibold">{product.title}</h3>
                     <p className="mt-2 text-sm text-slate-700">{formatCurrency(product.priceCents)}</p>
-                    <Button
-                      className="mt-3 w-full"
-                      onClick={() => handleAddToCart(product.id)}
-                      disabled={addToCartMutation.isPending}
-                    >
-                      Add to Cart
-                    </Button>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleAddToCart(product.id)}
+                        disabled={addToCartMutation.isPending}
+                      >
+                        Add to Cart
+                      </Button>
+                      <Button
+                        className="animate-pulse-soft"
+                        onClick={() => void handleBuyNow(product.id)}
+                        disabled={addToCartMutation.isPending}
+                      >
+                        Buy Now
+                      </Button>
+                    </div>
                   </article>
                 ))}
               </div>

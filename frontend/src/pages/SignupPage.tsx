@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -11,6 +11,9 @@ import { parseApiValidationDetails } from '@/lib/api-error'
 import { signupSchema, type SignupFormValues } from '@/lib/validation/auth'
 
 export function SignupPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
   const { busy, submitAuth } = useAuthSession()
   const {
     register,
@@ -30,6 +33,9 @@ export function SignupPage() {
   const onSubmit = async (values: SignupFormValues) => {
     try {
       await submitAuth('register', values.email, values.password)
+      const redirectFromState = (location.state as { from?: string } | null)?.from
+      const redirectFromQuery = searchParams.get('next')
+      navigate(redirectFromQuery || redirectFromState || '/products', { replace: true })
     } catch (error) {
       const { fieldErrors, formErrors } = parseApiValidationDetails(error)
 
@@ -51,7 +57,7 @@ export function SignupPage() {
   return (
     <>
       <Seo title="Sign Up | Tamales Commerce" description="Create an account to start shopping and placing orders." />
-      <Card className="mx-auto max-w-xl border-slate-200/80 bg-white/95">
+      <Card className="animate-fade-up mx-auto max-w-xl border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
           <CardDescription>Create a new account and start exploring the app.</CardDescription>

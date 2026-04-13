@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -121,12 +121,37 @@ export function CheckoutPreviewPage() {
         title="Checkout Preview | Tamales Commerce"
         description="Review pricing, apply coupon, and place your order."
       />
-      <Card className="border-slate-200/80 bg-white/95">
+      <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Checkout</CardTitle>
           <CardDescription>Preview pricing, enter shipping details, and place your order.</CardDescription>
         </CardHeader>
         <CardContent>
+          <section className="mb-4 grid gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 p-3 text-xs sm:grid-cols-3">
+            <div className={`rounded-md px-3 py-2 ${preview ? 'bg-emerald-100 text-emerald-800' : 'bg-white text-slate-600'}`}>
+              1. Preview totals
+            </div>
+            <div className={`rounded-md px-3 py-2 ${preview ? 'bg-emerald-100 text-emerald-800' : 'bg-white text-slate-600'}`}>
+              2. Add shipping details
+            </div>
+            <div className={`rounded-md px-3 py-2 ${preview ? 'bg-emerald-100 text-emerald-800' : 'bg-white text-slate-600'}`}>
+              3. Place order
+            </div>
+          </section>
+
+          {cartItems.length === 0 ? (
+            <section className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-medium text-amber-900">Your cart is empty.</p>
+              <p className="mt-1 text-sm text-amber-800">Add at least one item to preview and place an order.</p>
+              <Link
+                to="/products"
+                className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-amber-600 px-4 text-sm font-semibold text-white transition hover:bg-amber-500"
+              >
+                Browse Products
+              </Link>
+            </section>
+          ) : null}
+
           <form
             className="flex flex-col gap-3 rounded-lg border border-slate-200/80 bg-slate-50/80 p-4 sm:flex-row"
             onSubmit={(event) => void couponForm.handleSubmit(handlePreview)(event)}
@@ -144,14 +169,14 @@ export function CheckoutPreviewPage() {
                 disabled={previewCheckoutMutation.isPending || cartItems.length === 0 || !!couponForm.formState.errors.couponCode}
                 className="w-full sm:w-auto"
               >
-                Preview
+                {previewCheckoutMutation.isPending ? 'Previewing...' : 'Preview Order Summary'}
               </Button>
             </div>
           </form>
 
           {preview ? (
             <>
-              <div className="mt-4 space-y-2 rounded-lg border border-slate-200/80 bg-slate-50 p-4 text-sm">
+              <div className="mt-4 animate-fade-up space-y-2 rounded-lg border border-slate-200/80 bg-slate-50 p-4 text-sm">
                 <p>Subtotal: {formatCurrency(preview.pricing.subtotalCents)}</p>
                 <p>Discount: -{formatCurrency(preview.pricing.discountCents)}</p>
                 <p>Shipping: {formatCurrency(preview.pricing.shippingCents)}</p>
@@ -161,7 +186,7 @@ export function CheckoutPreviewPage() {
               </div>
 
               <form
-                className="mt-4 grid gap-3 rounded-lg border border-slate-200/80 bg-white p-4 md:grid-cols-2"
+                className="mt-4 animate-fade-up grid gap-3 rounded-lg border border-slate-200/80 bg-white p-4 md:grid-cols-2"
                 onSubmit={(event) => void orderForm.handleSubmit(handlePlaceOrder)(event)}
               >
                 <div className="space-y-2 md:col-span-2">
@@ -200,8 +225,8 @@ export function CheckoutPreviewPage() {
                 </div>
                 {orderForm.formState.errors.root?.message ? <p className="text-xs text-destructive md:col-span-2">{orderForm.formState.errors.root.message}</p> : null}
                 <div className="md:col-span-2">
-                  <Button type="submit" disabled={placeOrderMutation.isPending} className="w-full sm:w-auto">
-                    {placeOrderMutation.isPending ? 'Placing order...' : 'Place Order'}
+                  <Button type="submit" disabled={placeOrderMutation.isPending} className="w-full animate-pulse-soft sm:w-auto">
+                    {placeOrderMutation.isPending ? 'Placing order...' : 'Place Order Now'}
                   </Button>
                 </div>
               </form>

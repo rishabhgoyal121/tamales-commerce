@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { CartTable } from '@/components/cart/CartTable'
 import { Seo } from '@/components/seo/Seo'
@@ -76,14 +77,41 @@ export function CartPage() {
   return (
     <>
       <Seo title="Cart | Tamales Commerce" description="Manage cart quantity updates before checkout." />
-      <Card className="border-slate-200/80 bg-white/95">
+      <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Cart Workspace</CardTitle>
           <CardDescription>
-            Quantity updates are optimistic and debounced for rapid input handling.
+            One smooth flow: add items, confirm quantities, then continue to checkout.
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <section className="mb-4 animate-slide-up rounded-lg border border-emerald-200 bg-emerald-50/80 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-emerald-700 uppercase">Ready to place order</p>
+                <p className="text-sm text-emerald-900">
+                  {cartItems.length > 0
+                    ? `Subtotal ${formatCurrency(cartSubtotalCents)} · Continue in one click.`
+                    : 'Your cart is empty. Browse products to begin checkout.'}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  to="/products"
+                  className="inline-flex h-9 items-center justify-center rounded-lg border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100"
+                >
+                  Browse
+                </Link>
+                <Link
+                  to="/checkout-preview"
+                  className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                >
+                  Proceed to Checkout
+                </Link>
+              </div>
+            </div>
+          </section>
+
           <form
             className="grid gap-3 rounded-lg border border-slate-200/80 bg-slate-50/80 p-4 sm:grid-cols-4"
             onSubmit={(event) => void handleSubmit(handleAddToCart)(event)}
@@ -137,13 +165,21 @@ export function CartPage() {
             <p className="text-sm text-slate-700">
               Subtotal: <strong>{formatCurrency(cartSubtotalCents)}</strong>
             </p>
-            <Button
-              variant="outline"
-              onClick={() => clearCartMutation.mutate()}
-              disabled={clearCartMutation.isPending || cartItems.length === 0}
-            >
-              Clear Cart
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => clearCartMutation.mutate()}
+                disabled={clearCartMutation.isPending || cartItems.length === 0}
+              >
+                Clear Cart
+              </Button>
+              <Link
+                to="/checkout-preview"
+                className="inline-flex h-9 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                Checkout
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>
