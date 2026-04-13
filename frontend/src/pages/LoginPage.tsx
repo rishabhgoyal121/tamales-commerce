@@ -1,59 +1,77 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
+import { type LoginFormValues, loginSchema } from '@/lib/validation/auth'
 
 export function LoginPage() {
   const { busy, submitAuth } = useAuthSession()
-  const [email, setEmail] = useState('learner@tamales.dev')
-  const [password, setPassword] = useState('strongpass123')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    await submitAuth('login', email, password)
+  const onSubmit = async (values: LoginFormValues) => {
+    await submitAuth('login', values.email, values.password)
   }
 
   return (
-    <article className="rounded-xl border bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-semibold">Login</h2>
-      <p className="mt-1 text-sm text-slate-600">Access your account to use cart and checkout.</p>
+    <Card className="mx-auto max-w-xl border-slate-200/80 bg-white/95">
+      <CardHeader>
+        <CardTitle>Login</CardTitle>
+        <CardDescription>Access your account to use cart and checkout.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form className="space-y-4" onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
+          <div className="space-y-2">
+            <Label htmlFor="login-email">Email</Label>
+            <Input
+              id="login-email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              {...register('email')}
+            />
+            {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
+          </div>
 
-      <form className="mt-4 space-y-4" onSubmit={(event) => void handleSubmit(event)}>
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Email</span>
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-slate-300 transition focus:ring-2"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="login-password">Password</Label>
+            <Input
+              id="login-password"
+              type="password"
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              {...register('password')}
+            />
+            {errors.password ? (
+              <p className="text-xs text-destructive">{errors.password.message}</p>
+            ) : null}
+          </div>
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Password</span>
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-slate-300 transition focus:ring-2"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            minLength={8}
-            required
-          />
-        </label>
+          <Button type="submit" disabled={busy || isSubmitting} className="w-full">
+            {busy || isSubmitting ? 'Please wait...' : 'Sign in'}
+          </Button>
+        </form>
 
-        <Button type="submit" disabled={busy}>
-          {busy ? 'Please wait...' : 'Sign in'}
-        </Button>
-      </form>
-
-      <p className="mt-4 text-sm text-slate-600">
-        No account yet?{' '}
-        <Link to="/signup" className="font-medium text-slate-900 underline">
-          Create one
-        </Link>
-      </p>
-    </article>
+        <p className="mt-4 text-sm text-muted-foreground">
+          No account yet?{' '}
+          <Link to="/signup" className="font-medium text-foreground underline">
+            Create one
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   )
 }

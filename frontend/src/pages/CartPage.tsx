@@ -1,16 +1,31 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { CartTable } from '@/components/cart/CartTable'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { useCart } from '@/hooks/useCart'
 import { formatCurrency } from '@/lib/currency'
+import { addCartItemSchema, type AddCartItemFormValues } from '@/lib/validation/cart'
 
 export function CartPage() {
   const { accessToken, isAuthenticated, setStatusMessage } = useAuthSession()
-  const [productIdToAdd, setProductIdToAdd] = useState('')
-  const [quantityToAdd, setQuantityToAdd] = useState(1)
   const [couponCode] = useState('')
+  const {
+    register,
+    handleSubmit,
+    resetField,
+    formState: { errors },
+  } = useForm<AddCartItemFormValues>({
+    resolver: zodResolver(addCartItemSchema),
+    defaultValues: {
+      productId: '',
+      quantity: 1,
+    },
+  })
 
   const {
     cartItems,
@@ -27,71 +42,82 @@ export function CartPage() {
     setStatusMessage,
   })
 
-  const handleAddToCart = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    if (!productIdToAdd.trim()) {
-      setStatusMessage('Product ID is required to add an item.')
-      return
-    }
-
+  const handleAddToCart = (values: AddCartItemFormValues) => {
     addCartItemMutation.mutate({
-      productId: productIdToAdd.trim(),
-      quantity: quantityToAdd,
+      productId: values.productId.trim(),
+      quantity: values.quantity,
     })
+    resetField('productId')
   }
 
   return (
-    <article className="rounded-xl border bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-semibold">Cart Workspace</h2>
-      <p className="mt-1 text-sm text-slate-600">
-        Quantity controls are optimistic and debounced for rapid input handling.
-      </p>
-
-      <form className="mt-4 grid gap-3 sm:grid-cols-4" onSubmit={handleAddToCart}>
-        <input
-          className="rounded border border-slate-300 px-3 py-2 text-sm sm:col-span-2"
-          placeholder="Product ID"
-          value={productIdToAdd}
-          onChange={(event) => setProductIdToAdd(event.target.value)}
-        />
-        <input
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          type="number"
-          min={1}
-          value={quantityToAdd}
-          onChange={(event) => setQuantityToAdd(Math.max(1, Number(event.target.value) || 1))}
-        />
-        <Button type="submit" disabled={addCartItemMutation.isPending}>
-          Add Item
-        </Button>
-      </form>
-
-      <div className="mt-4">
-        <CartTable
-          items={cartItems}
-          loading={cartQuery.isLoading}
-          updating={updateCartItemMutation.isPending}
-          removing={removeCartItemMutation.isPending}
-          onCommitQuantity={(itemId, quantity) =>
-            updateCartItemMutation.mutate({ itemId, quantity })
-          }
-          onRemoveItem={(itemId) => removeCartItemMutation.mutate(itemId)}
-        />
-      </div>
-
-      <div className="mt-4 flex items-center justify-between">
-        <p className="text-sm text-slate-700">
-          Subtotal: <strong>{formatCurrency(cartSubtotalCents)}</strong>
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => clearCartMutation.mutate()}
-          disabled={clearCartMutation.isPending || cartItems.length === 0}
+    <Card className="border-slate-200/80 bg-white/95">
+      <CardHeader>
+        <CardTitle>Cart Workspace</CardTitle>
+        <CardDescription>
+          Quantity updates are optimistic and debounced for rapid input handling.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          className="grid gap-3 rounded-lg border border-slate-200/80 bg-slate-50/80 p-4 sm:grid-cols-4"
+          onSubmit={(event) => void handleSubmit(handleAddToCart)(event)}
         >
-          Clear Cart
-        </Button>
-      </div>
-    </article>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="product-id">Product ID</Label>
+            <Input id="product-id" placeholder="prod_xxx" {...register('productId')} />
+            {errors.productId ? (
+              <p className="text-xs text-destructive">{errors.productId.message}</p>
+            ) : null}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="quantity">Quantity</Label>
+            <Input
+              id="quantity"
+              type="number"
+              min={1}
+              max={999}
+              {...register('quantity', {
+                setValueAs: (value) => Number.parseInt(value, 10) || 1,
+              })}
+            />
+            {errors.quantity ? (
+              <p className="text-xs text-destructive">{errors.quantity.message}</p>
+            ) : null}
+          </div>
+          <div className="flex items-end">
+            <Button type="submit" disabled={addCartItemMutation.isPending} className="w-full">
+              Add Item
+            </Button>
+          </div>
+        </form>
+
+        <div className="mt-4">
+          <CartTable
+            items={cartItems}
+            loading={cartQuery.isLoading}
+            updating={updateCartItemMutation.isPending}
+            removing={removeCartItemMutation.isPending}
+            onCommitQuantity={(itemId, quantity) =>
+              updateCartItemMutation.mutate({ itemId, quantity })
+            }
+            onRemoveItem={(itemId) => removeCartItemMutation.mutate(itemId)}
+          />
+        </div>
+
+        <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3">
+          <p className="text-sm text-slate-700">
+            Subtotal: <strong>{formatCurrency(cartSubtotalCents)}</strong>
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => clearCartMutation.mutate()}
+            disabled={clearCartMutation.isPending || cartItems.length === 0}
+          >
+            Clear Cart
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

@@ -17,6 +17,7 @@ type AuthSessionContextValue = {
   user: AuthUser | null
   accessToken: string
   isAuthenticated: boolean
+  bootstrapping: boolean
   busy: boolean
   statusMessage: string
   setStatusMessage: (value: string) => void
@@ -32,6 +33,7 @@ const AuthSessionContext = createContext<AuthSessionContextValue | null>(null)
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [accessToken, setAccessToken] = useState('')
+  const [bootstrapping, setBootstrapping] = useState(true)
   const [busy, setBusy] = useState(false)
   const [statusMessage, setStatusMessage] = useState('Checking existing session...')
 
@@ -46,6 +48,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         setStatusMessage('Session restored from refresh token cookie.')
       } catch {
         setStatusMessage('No active session. Please login or register.')
+      } finally {
+        setBootstrapping(false)
       }
     }
 
@@ -136,6 +140,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       user,
       accessToken,
       isAuthenticated: !!user && !!accessToken,
+      bootstrapping,
       busy,
       statusMessage,
       setStatusMessage,
@@ -145,7 +150,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       checkAdmin,
       signOut,
     }),
-    [user, accessToken, busy, statusMessage],
+    [user, accessToken, bootstrapping, busy, statusMessage],
   )
 
   return <AuthSessionContext.Provider value={value}>{children}</AuthSessionContext.Provider>

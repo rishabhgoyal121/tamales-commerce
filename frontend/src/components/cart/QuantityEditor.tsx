@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 type QuantityEditorProps = {
   initialQuantity: number
@@ -54,8 +55,8 @@ export function QuantityEditor({ initialQuantity, disabled, onCommit }: Quantity
       >
         -
       </Button>
-      <input
-        className="w-14 rounded border border-slate-300 px-2 py-1 text-center text-sm"
+      <Input
+        className="h-8 w-14 px-1 text-center"
         type="number"
         min={1}
         max={999}

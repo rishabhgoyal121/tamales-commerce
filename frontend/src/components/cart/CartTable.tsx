@@ -82,13 +82,16 @@ export function CartTable({
   })
 
   return (
-    <div className="overflow-x-auto rounded border border-slate-200">
+    <div className="overflow-x-auto rounded-lg border border-slate-200/80 bg-white">
       <table className="w-full border-collapse text-sm">
-        <thead className="bg-slate-50">
+        <thead className="bg-slate-50/80">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="border-b px-3 py-2 text-left font-medium">
+                <th
+                  key={header.id}
+                  className="border-b border-slate-200/80 px-3 py-2 text-left font-medium text-slate-700"
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -112,7 +115,7 @@ export function CartTable({
             </tr>
           ) : (
             table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b last:border-b-0">
+              <tr key={row.id} className="border-b border-slate-200/80 last:border-b-0">
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-3 py-2 align-top">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

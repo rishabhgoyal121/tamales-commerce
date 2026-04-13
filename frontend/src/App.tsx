@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { AdminRoute } from '@/components/routes/AdminRoute'
 import { PublicOnlyRoute } from '@/components/routes/PublicOnlyRoute'
 import { ProtectedRoute } from '@/components/routes/ProtectedRoute'
+import { RouteGateLoader } from '@/components/routes/RouteGateLoader'
 import { AuthSessionProvider, useAuthSession } from '@/hooks/useAuthSession'
 import { AdminPage } from '@/pages/AdminPage'
 import { CartPage } from '@/pages/CartPage'
@@ -11,7 +12,12 @@ import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
 
 function RootRedirect() {
-  const { isAuthenticated } = useAuthSession()
+  const { isAuthenticated, bootstrapping } = useAuthSession()
+
+  if (bootstrapping) {
+    return <RouteGateLoader />
+  }
+
   return <Navigate to={isAuthenticated ? '/cart' : '/login'} replace />
 }
 

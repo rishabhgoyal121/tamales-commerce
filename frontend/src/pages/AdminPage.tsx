@@ -1,21 +1,23 @@
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthSession } from '@/hooks/useAuthSession'
 
 export function AdminPage() {
   const { user, busy, checkAdmin } = useAuthSession()
 
   return (
-    <article className="rounded-xl border bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-semibold">Admin Console</h2>
-      <p className="mt-1 text-sm text-slate-600">
-        This route is protected by admin guard. Current role: {user?.role}
-      </p>
-
-      <div className="mt-4">
+    <Card className="border-slate-200/80 bg-white/95">
+      <CardHeader>
+        <CardTitle>Admin Console</CardTitle>
+        <CardDescription>
+          This route is protected by admin guard. Current role: {user?.role}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
         <Button onClick={() => void checkAdmin()} disabled={busy}>
           Verify Admin Access
         </Button>
-      </div>
-    </article>
+      </CardContent>
+    </Card>
   )
 }

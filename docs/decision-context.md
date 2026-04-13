@@ -198,3 +198,29 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: checkout api/core/service and cart flow.
 - Follow-up Actions: Validate and re-price again at final order placement.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-015 | Frontend Validation + Session Bootstrap Guard
+- Date: 2026-04-13
+- Decision ID: DEC-015
+- Decision: Standardize form validation with `react-hook-form + zod` and add auth bootstrap gate for route guards.
+- Context: Frontend had basic HTML validation and auth-route flicker during refresh-token session restore.
+- Options Considered: Keep native validation + immediate route redirects, schema-driven validation + bootstrapping guard.
+- Chosen Option: Schema-driven validation + explicit `bootstrapping` session state.
+- Rationale: Produces deterministic validation behavior, better UX, and stronger interview-ready implementation quality.
+- Risks / Edge Cases: Validation schema drift if backend rules change without frontend update.
+- Impacted Modules / Files: auth/cart/checkout pages, auth session hook, protected/public/admin routes.
+- Follow-up Actions: Reuse schemas for e2e test fixtures and server-client contract checks.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-016 | UI Baseline Upgrade to Reusable shadcn-style Primitives
+- Date: 2026-04-13
+- Decision ID: DEC-016
+- Decision: Replace ad-hoc page markup with reusable UI primitives (`Card`, `Input`, `Label`, `Badge`, `Alert`).
+- Context: UI looked inconsistent and non-production-like across screens.
+- Options Considered: Keep inline Tailwind classes only, establish reusable component baseline.
+- Chosen Option: Reusable component baseline.
+- Rationale: Improves consistency, maintainability, and accelerates future page development.
+- Risks / Edge Cases: Primitive APIs may need iteration as feature complexity grows.
+- Impacted Modules / Files: shared UI components, auth/cart/checkout/admin pages, layout styling.
+- Follow-up Actions: Add frontend design guidelines for spacing, states, and color usage.
+- Supersedes: N/A
