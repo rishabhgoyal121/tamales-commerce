@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,7 +9,7 @@ import { SmartImage } from '@/components/common/SmartImage'
 import { Seo } from '@/components/seo/Seo'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
-import { addCartItem, listProducts, type ProductListSort } from '@/lib/auth-api'
+import { addCartItem, getCart, listProducts, type ProductListSort } from '@/lib/auth-api'
 import { formatCurrency } from '@/lib/currency'
 import { notifyError, notifyInfo, notifySuccessWithAction } from '@/lib/notify'
 
@@ -37,6 +37,7 @@ const productImageBySlug: Record<string, string> = {
 }
 
 export function ProductsPage() {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
@@ -74,9 +75,17 @@ export function ProductsPage() {
       }),
   })
 
+  const cartQuery = useQuery({
+    queryKey: ['cart', accessToken],
+    queryFn: () => getCart(accessToken),
+    enabled: isAuthenticated && !!accessToken,
+    staleTime: 15_000,
+  })
+
   const addToCartMutation = useMutation({
     mutationFn: (productId: string) => addCartItem(accessToken, { productId, quantity: 1 }),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(['cart', accessToken], data)
       setStatusMessage('Added item to cart from catalog.')
       notifySuccessWithAction('Added item to cart.', {
         label: 'Open cart',
@@ -92,6 +101,10 @@ export function ProductsPage() {
 
   const products = productsQuery.data?.data ?? []
   const meta = productsQuery.data?.meta
+  const cartProductIds = useMemo(
+    () => new Set((cartQuery.data?.data.items ?? []).map((item) => item.productId)),
+    [cartQuery.data?.data.items],
+  )
 
   const canGoPrev = (meta?.page ?? page) > 1
   const canGoNext = meta ? meta.page < meta.totalPages : false
@@ -278,41 +291,66 @@ export function ProductsPage() {
               <p className="text-sm text-muted-foreground">No products found for current filters.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {products.map((product) => (
-                  <article
-                    key={product.id}
-                    className="animate-fade-up rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
-                  >
-                    <div className="overflow-hidden rounded-md bg-slate-100">
-                      <SmartImage
-                        src={productImageBySlug[product.slug] ?? 'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=900&q=80'}
-                        alt={product.title}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-40 w-full object-cover"
-                      />
-                    </div>
-                    <p className="mt-2 text-xs text-muted-foreground">{product.slug}</p>
-                    <h3 className="mt-1 text-base font-semibold">{product.title}</h3>
-                    <p className="mt-2 text-sm text-slate-700">{formatCurrency(product.priceCents)}</p>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => handleAddToCart(product.id)}
-                        disabled={addToCartMutation.isPending}
-                      >
-                        Add to Cart
-                      </Button>
-                      <Button
-                        className="animate-pulse-soft"
-                        onClick={() => void handleBuyNow(product.id)}
-                        disabled={addToCartMutation.isPending}
-                      >
-                        Buy Now
-                      </Button>
-                    </div>
-                  </article>
-                ))}
+                {products.map((product) => {
+                  const isInCart = cartProductIds.has(product.id)
+
+                  return (
+                    <article
+                      key={product.id}
+                      className="animate-fade-up rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                      <div className="relative overflow-hidden rounded-md bg-slate-100">
+                        <SmartImage
+                          src={productImageBySlug[product.slug] ?? 'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=900&q=80'}
+                          alt={product.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-40 w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-slate-900 text-sm font-bold text-white shadow transition hover:bg-slate-700"
+                          title={isInCart ? 'Go to cart' : 'Add to cart'}
+                          aria-label={isInCart ? `Go to cart for ${product.title}` : `Add ${product.title} to cart`}
+                          onClick={() => {
+                            if (isInCart) {
+                              navigate('/cart')
+                              return
+                            }
+                            handleAddToCart(product.id)
+                          }}
+                        >
+                          {isInCart ? '→' : '+'}
+                        </button>
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">{product.slug}</p>
+                      <h3 className="mt-1 text-base font-semibold">{product.title}</h3>
+                      <p className="mt-2 text-sm text-slate-700">{formatCurrency(product.priceCents)}</p>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <Button
+                          variant={isInCart ? 'default' : 'outline'}
+                          onClick={() => {
+                            if (isInCart) {
+                              navigate('/cart')
+                              return
+                            }
+                            handleAddToCart(product.id)
+                          }}
+                          disabled={addToCartMutation.isPending}
+                        >
+                          {isInCart ? 'Go to Cart' : 'Add to Cart'}
+                        </Button>
+                        <Button
+                          className="animate-pulse-soft"
+                          onClick={() => void handleBuyNow(product.id)}
+                          disabled={addToCartMutation.isPending}
+                        >
+                          Buy Now
+                        </Button>
+                      </div>
+                    </article>
+                  )
+                })}
               </div>
             )}
           </section>

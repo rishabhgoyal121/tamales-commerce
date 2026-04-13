@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,12 +9,15 @@ import { HeroCarousel } from '@/components/marketplace/HeroCarousel'
 import { HorizontalProductCarousel } from '@/components/marketplace/HorizontalProductCarousel'
 import { OfferTicker } from '@/components/marketplace/OfferTicker'
 import { useAuthSession } from '@/hooks/useAuthSession'
+import { addCartItem, listProducts } from '@/lib/auth-api'
 import { categoryDeals, featuredDeals, heroSlides, quickOffers } from '@/lib/marketplace-data'
+import { notifyError, notifyInfo, notifySuccessWithAction } from '@/lib/notify'
 
 export function LandingPage() {
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuthSession()
+  const { isAuthenticated, accessToken, setStatusMessage } = useAuthSession()
   const [searchText, setSearchText] = useState('')
+  const [quickAddPendingId, setQuickAddPendingId] = useState<string | null>(null)
 
   const dealSections = useMemo(
     () => [
@@ -27,6 +31,53 @@ export function LandingPage() {
     event.preventDefault()
     const query = searchText.trim()
     navigate(query ? `/products?q=${encodeURIComponent(query)}` : '/products')
+  }
+
+  const quickAddMutation = useMutation({
+    mutationFn: async (query: string) => {
+      const catalog = await listProducts({ q: query, limit: 1, sort: 'createdAt_desc' })
+      const first = catalog.data[0]
+      if (!first) {
+        throw new Error('No matching product found for quick add')
+      }
+      return addCartItem(accessToken, { productId: first.id, quantity: 1 })
+    },
+    onSuccess: () => {
+      setStatusMessage('Item added to cart.')
+      notifySuccessWithAction('Item added to cart.', {
+        label: 'Open cart',
+        onClick: () => navigate('/cart'),
+      })
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Unable to quick add item'
+      setStatusMessage(message)
+      notifyError(message)
+    },
+    onSettled: () => {
+      setQuickAddPendingId(null)
+    },
+  })
+
+  const quickAddByHref = (itemId: string, href: string) => {
+    if (!isAuthenticated) {
+      const message = 'Please login to add to cart.'
+      setStatusMessage(message)
+      notifyInfo(message)
+      navigate(`/login?next=${encodeURIComponent('/cart')}`)
+      return
+    }
+
+    const query = href.includes('?') ? new URLSearchParams(href.split('?')[1]).get('q') : null
+    if (!query?.trim()) {
+      const message = 'Quick add is not available for this card yet.'
+      setStatusMessage(message)
+      notifyInfo(message)
+      return
+    }
+
+    setQuickAddPendingId(itemId)
+    quickAddMutation.mutate(query.trim())
   }
 
   return (
@@ -63,13 +114,20 @@ export function LandingPage() {
 
         <OfferTicker offers={quickOffers} />
 
-        <CategoryDealsGrid title="Shop By Category" items={categoryDeals} />
+        <CategoryDealsGrid
+          title="Shop By Category"
+          items={categoryDeals}
+          quickAddPendingId={quickAddPendingId}
+          onQuickAdd={(item) => quickAddByHref(item.id, item.href)}
+        />
 
         {dealSections.map((section) => (
           <HorizontalProductCarousel
             key={section.title}
             title={section.title}
             products={section.products}
+            quickAddPendingId={quickAddPendingId}
+            onQuickAdd={(product) => quickAddByHref(product.id, product.href)}
           />
         ))}
 

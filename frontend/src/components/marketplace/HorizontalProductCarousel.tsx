@@ -5,9 +5,16 @@ import type { MarketplaceProductCard } from '@/lib/marketplace-data'
 type HorizontalProductCarouselProps = {
   title: string
   products: MarketplaceProductCard[]
+  onQuickAdd?: (product: MarketplaceProductCard) => void
+  quickAddPendingId?: string | null
 }
 
-export function HorizontalProductCarousel({ title, products }: HorizontalProductCarouselProps) {
+export function HorizontalProductCarousel({
+  title,
+  products,
+  onQuickAdd,
+  quickAddPendingId,
+}: HorizontalProductCarouselProps) {
   return (
     <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
       <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
@@ -31,6 +38,20 @@ export function HorizontalProductCarousel({ title, products }: HorizontalProduct
                   {product.badge}
                 </span>
               ) : null}
+              <button
+                type="button"
+                className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-slate-900 text-sm font-bold text-white shadow transition hover:bg-slate-700 disabled:opacity-60"
+                title="Add to cart"
+                aria-label={`Add ${product.title} to cart`}
+                disabled={!onQuickAdd || quickAddPendingId === product.id}
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  onQuickAdd?.(product)
+                }}
+              >
+                +
+              </button>
             </div>
             <p className="mt-2 line-clamp-2 text-sm font-medium text-slate-900">{product.title}</p>
             <p className="mt-1 text-sm font-semibold text-slate-800">{product.priceLabel}</p>
