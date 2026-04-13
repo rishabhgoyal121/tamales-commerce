@@ -375,6 +375,39 @@ export async function previewCheckout(accessToken: string, couponCode?: string) 
   })
 }
 
+export async function placeOrder(
+  accessToken: string,
+  payload: {
+    couponCode?: string
+    paymentOutcome?: 'PENDING' | 'AUTHORIZED' | 'FAILED'
+    address: {
+      fullName: string
+      line1: string
+      line2?: string
+      city: string
+      state: string
+      postalCode: string
+      country: string
+    }
+  },
+) {
+  return request<{
+    data: {
+      orderId: string
+      status: OrderStatus
+      paymentStatus: PaymentStatus
+      totalCents: number
+      itemCount: number
+    }
+  }>('/checkout/place-order', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  })
+}
+
 export async function listProducts(params: {
   q?: string
   minPrice?: number

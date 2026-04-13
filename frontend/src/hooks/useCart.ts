@@ -5,6 +5,7 @@ import {
   clearCart,
   getCart,
   isApiClientError,
+  placeOrder,
   previewCheckout,
   removeCartItem,
   updateCartItemQuantity,
@@ -131,6 +132,29 @@ export function useCart({
     },
   })
 
+  const placeOrderMutation = useMutation({
+    mutationFn: (payload: {
+      couponCode?: string
+      paymentOutcome?: 'PENDING' | 'AUTHORIZED' | 'FAILED'
+      address: {
+        fullName: string
+        line1: string
+        line2?: string
+        city: string
+        state: string
+        postalCode: string
+        country: string
+      }
+    }) => placeOrder(accessToken, payload),
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ['cart', accessToken] })
+      setStatusMessage('Order placed successfully.')
+    },
+    onError: (error) => {
+      handleMutationError(error, 'Order placement failed')
+    },
+  })
+
   const cartItems = cartQuery.data?.data.items ?? []
   const cartSubtotalCents = useMemo(
     () => cartItems.reduce((total, item) => total + item.quantity * item.product.priceCents, 0),
@@ -146,5 +170,6 @@ export function useCart({
     removeCartItemMutation,
     clearCartMutation,
     previewCheckoutMutation,
+    placeOrderMutation,
   }
 }

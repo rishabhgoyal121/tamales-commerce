@@ -354,3 +354,42 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: orders api/core/service/types/routes, openapi, frontend API client, orders page, new order detail page.
 - Follow-up Actions: Add customer invoice download and reorder action in future phase.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-027 | Checkout Place-Order API and End-to-End Happy Path
+- Date: 2026-04-13
+- Decision ID: DEC-027
+- Decision: Introduce `POST /checkout/place-order` to convert cart into order with address capture, pricing lock-in, inventory decrement, payment state initialization, and cart clear.
+- Context: Preview-only checkout prevented completion of full ecommerce flow.
+- Options Considered: Keep preview-only, add real place-order endpoint with transactional integrity.
+- Chosen Option: Real place-order endpoint with transaction.
+- Rationale: Enables complete user journey and production-grade consistency guarantees.
+- Risks / Edge Cases: Concurrent stock updates can fail at commit time and return conflict errors.
+- Impacted Modules / Files: checkout api/core/service/schema, routes, openapi, frontend checkout page, cart hooks/API client.
+- Follow-up Actions: Add idempotency key support and payment retry endpoint.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-028 | Public Landing Route with Catalog-First Navigation
+- Date: 2026-04-13
+- Decision ID: DEC-028
+- Decision: Add dedicated landing page at `/` and keep product browsing public.
+- Context: Needed clear entry-point UX for portfolio demos and user onboarding.
+- Options Considered: Direct redirect to products, explicit landing page with action CTAs.
+- Chosen Option: Explicit landing page with CTAs.
+- Rationale: Improves discoverability and narrative clarity during walkthroughs.
+- Risks / Edge Cases: Additional maintenance for marketing-style content.
+- Impacted Modules / Files: frontend routing, layout navigation, landing page.
+- Follow-up Actions: Add testimonials/feature proof blocks and analytics events.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-029 | Deterministic Seed Data for Demo-Ready Environments
+- Date: 2026-04-13
+- Decision ID: DEC-029
+- Decision: Add idempotent Prisma seed script for admin, categories, products, inventory, and coupon.
+- Context: Needed predictable demo data for happy-path validation post-deploy.
+- Options Considered: Manual DB inserts, automated idempotent seed script.
+- Chosen Option: Automated idempotent seed script.
+- Rationale: Faster onboarding and repeatable environment setup.
+- Risks / Edge Cases: Seed defaults can diverge from production assumptions over time.
+- Impacted Modules / Files: backend prisma seed script and package scripts.
+- Follow-up Actions: Add environment-specific seed variants (dev/staging/demo).
+- Supersedes: N/A

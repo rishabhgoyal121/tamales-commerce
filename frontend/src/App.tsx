@@ -9,27 +9,24 @@ import { AdminPage } from '@/pages/AdminPage'
 import { AdminOrdersPage } from '@/pages/AdminOrdersPage'
 import { CartPage } from '@/pages/CartPage'
 import { CheckoutPreviewPage } from '@/pages/CheckoutPreviewPage'
+import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { OrderDetailPage } from '@/pages/OrderDetailPage'
 import { OrdersPage } from '@/pages/OrdersPage'
 import { ProductsPage } from '@/pages/ProductsPage'
 import { SignupPage } from '@/pages/SignupPage'
 
-function RootRedirect() {
+function AppRoutes() {
   const { bootstrapping } = useAuthSession()
 
   if (bootstrapping) {
     return <RouteGateLoader />
   }
 
-  return <Navigate to="/products" replace />
-}
-
-function AppRoutes() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<RootRedirect />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<Navigate to="/login" replace />} />
         <Route path="/products" element={<ProductsPage />} />
 

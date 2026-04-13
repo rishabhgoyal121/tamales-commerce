@@ -15,7 +15,10 @@ import {
   listMyOrdersApiController,
   updateAdminOrderStatusApiController,
 } from './modules/orders/api/orders-api.controller.js'
-import { previewCheckoutApiController } from './modules/checkout/api/checkout-api.controller.js'
+import {
+  placeOrderApiController,
+  previewCheckoutApiController,
+} from './modules/checkout/api/checkout-api.controller.js'
 import {
   adminCheckApiController,
   loginApiController,
@@ -58,3 +61,4 @@ router.patch('/cart/items/:itemId', authenticate, updateCartItemApiController)
 router.delete('/cart/items/:itemId', authenticate, removeCartItemApiController)
 router.delete('/cart', authenticate, clearCartApiController)
 router.post('/checkout/preview', authenticate, previewCheckoutApiController)
+router.post('/checkout/place-order', authenticate, placeOrderApiController)

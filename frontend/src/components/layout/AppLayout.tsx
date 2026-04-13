@@ -50,6 +50,9 @@ export function AppLayout() {
             </div>
 
             <nav className="mt-5 flex flex-wrap items-center gap-2">
+              <NavLink to="/" className={navClassName}>
+                Home
+              </NavLink>
               <NavLink to="/products" className={navClassName}>
                 Products
               </NavLink>

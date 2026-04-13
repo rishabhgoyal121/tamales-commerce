@@ -1,11 +1,17 @@
 import { AppError } from '../../../shared/errors/app-error.js'
-import { findCouponByCode, getCartForCheckout } from '../service/checkout.service.js'
+import type { OrderStatus, PaymentStatus } from '@prisma/client'
+import {
+  createOrderFromCart,
+  findCouponByCode,
+  getCartForCheckout,
+} from '../service/checkout.service.js'
+import type { PlaceOrderInput } from '../schema/checkout.schema.js'
 
 const TAX_RATE = 0.18
 const SHIPPING_FLAT_CENTS = 499
 const FREE_SHIPPING_THRESHOLD_CENTS = 5000
 
-export async function previewCheckoutCoreController(userId: string, couponCode?: string) {
+async function buildCheckoutPreview(userId: string, couponCode?: string) {
   const cart = await getCartForCheckout(userId)
 
   if (!cart || cart.items.length === 0) {
@@ -75,6 +81,7 @@ export async function previewCheckoutCoreController(userId: string, couponCode?:
   const totalCents = taxableBaseCents + shippingCents + taxCents
 
   return {
+    cart,
     data: {
       cartId: cart.id,
       items,
@@ -86,6 +93,63 @@ export async function previewCheckoutCoreController(userId: string, couponCode?:
         totalCents,
       },
       appliedCouponCode,
+    },
+  }
+}
+
+export async function previewCheckoutCoreController(userId: string, couponCode?: string) {
+  const preview = await buildCheckoutPreview(userId, couponCode)
+  return {
+    data: preview.data,
+  }
+}
+
+function mapPaymentOutcomeToOrderState(paymentOutcome: PlaceOrderInput['paymentOutcome']): {
+  paymentStatus: PaymentStatus
+  orderStatus: OrderStatus
+} {
+  if (paymentOutcome === 'FAILED') {
+    return {
+      paymentStatus: 'FAILED',
+      orderStatus: 'CANCELLED',
+    }
+  }
+
+  if (paymentOutcome === 'PENDING') {
+    return {
+      paymentStatus: 'PENDING',
+      orderStatus: 'CREATED',
+    }
+  }
+
+  return {
+    paymentStatus: 'AUTHORIZED',
+    orderStatus: 'CONFIRMED',
+  }
+}
+
+export async function placeOrderCoreController(userId: string, input: PlaceOrderInput) {
+  const preview = await buildCheckoutPreview(userId, input.couponCode)
+  const { paymentStatus, orderStatus } = mapPaymentOutcomeToOrderState(input.paymentOutcome)
+
+  const result = await createOrderFromCart({
+    userId,
+    cartId: preview.cart.id,
+    items: preview.data.items,
+    pricing: preview.data.pricing,
+    address: input.address,
+    appliedCouponCode: preview.data.appliedCouponCode,
+    paymentStatus,
+    orderStatus,
+  })
+
+  return {
+    data: {
+      orderId: result.orderId,
+      status: result.status,
+      paymentStatus: result.paymentStatus,
+      totalCents: result.totalCents,
+      itemCount: preview.data.items.length,
     },
   }
 }
