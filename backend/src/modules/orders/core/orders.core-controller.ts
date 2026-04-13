@@ -1,14 +1,18 @@
 import type { OrderStatus, PaymentStatus } from '@prisma/client'
 import { AppError } from '../../../shared/errors/app-error.js'
 import {
+  getOrderStatusById,
   listAdminOrders,
   listCustomerOrders,
+  updateOrderStatusWithTransition,
 } from '../service/orders.service.js'
 import type {
   AdminOrderListQuery,
   CustomerOrderListQuery,
   OrderListSort,
+  UpdateOrderStatusResult,
 } from '../orders.types.js'
+import type { UpdateAdminOrderStatusInput } from '../schema/orders.schema.js'
 
 const ORDER_STATUSES: readonly OrderStatus[] = [
   'CREATED',
@@ -33,6 +37,15 @@ const ORDER_SORTS: readonly OrderListSort[] = [
   'total_asc',
   'status_asc',
 ]
+
+const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
+  CREATED: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['PACKED', 'CANCELLED'],
+  PACKED: ['SHIPPED'],
+  SHIPPED: ['DELIVERED'],
+  DELIVERED: [],
+  CANCELLED: [],
+}
 
 const CUSTOMER_ALLOWED_KEYS = new Set(['status', 'paymentStatus', 'page', 'limit', 'sort'])
 const ADMIN_ALLOWED_KEYS = new Set([
@@ -153,4 +166,40 @@ export async function listCustomerOrdersCoreController(
 export async function listAdminOrdersCoreController(rawQuery: Record<string, unknown>) {
   const query = normalizeAdminOrderListQuery(rawQuery)
   return listAdminOrders(query)
+}
+
+export function canTransitionOrderStatus(fromStatus: OrderStatus, toStatus: OrderStatus) {
+  return ORDER_STATUS_TRANSITIONS[fromStatus].includes(toStatus)
+}
+
+export async function updateAdminOrderStatusCoreController(
+  orderId: string,
+  input: UpdateAdminOrderStatusInput,
+  changedByUserId: string,
+): Promise<UpdateOrderStatusResult> {
+  const currentOrder = await getOrderStatusById(orderId)
+
+  if (!currentOrder) {
+    throw new AppError('NOT_FOUND', 'Order not found', 404)
+  }
+
+  if (currentOrder.status === input.status) {
+    throw new AppError('VALIDATION_ERROR', `Order is already ${input.status}`, 422)
+  }
+
+  if (!canTransitionOrderStatus(currentOrder.status, input.status)) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      `Invalid status transition: ${currentOrder.status} -> ${input.status}`,
+      422,
+    )
+  }
+
+  return updateOrderStatusWithTransition({
+    orderId,
+    fromStatus: currentOrder.status,
+    toStatus: input.status,
+    note: input.note,
+    changedByUserId,
+  })
 }

@@ -11,6 +11,7 @@ import {
 import {
   listAdminOrdersApiController,
   listMyOrdersApiController,
+  updateAdminOrderStatusApiController,
 } from './modules/orders/api/orders-api.controller.js'
 import { previewCheckoutApiController } from './modules/checkout/api/checkout-api.controller.js'
 import {
@@ -36,6 +37,12 @@ router.get('/auth/me', authenticate, meApiController)
 router.get('/auth/admin-check', authenticate, requireRole('ADMIN'), adminCheckApiController)
 router.get('/orders', authenticate, listMyOrdersApiController)
 router.get('/admin/orders', authenticate, requireRole('ADMIN'), listAdminOrdersApiController)
+router.patch(
+  '/admin/orders/:orderId/status',
+  authenticate,
+  requireRole('ADMIN'),
+  updateAdminOrderStatusApiController,
+)
 router.get('/cart', authenticate, getCartApiController)
 router.post('/cart/items', authenticate, addCartItemApiController)
 router.patch('/cart/items/:itemId', authenticate, updateCartItemApiController)

@@ -315,3 +315,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend admin orders page, API client, routing, nav.
 - Follow-up Actions: Add order-status update actions and optimistic admin mutations.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-024 | Admin Order Status State Machine with Audit Trail
+- Date: 2026-04-13
+- Decision ID: DEC-024
+- Decision: Implement admin-only order status update endpoint with strict transition matrix and persistent transition audit records.
+- Context: Admin operations required real status lifecycle management beyond read-only order listings.
+- Options Considered: Direct unrestricted status overwrite, restricted transition matrix with audit persistence.
+- Chosen Option: Restricted transition matrix with audit persistence.
+- Rationale: Prevents invalid lifecycle states and creates traceable operational history for production-grade workflows.
+- Risks / Edge Cases: Concurrent updates can conflict; service now returns `409` for stale expected status conflicts.
+- Impacted Modules / Files: orders api/core/service, prisma schema+migration, admin orders frontend, openapi contract.
+- Follow-up Actions: Add dedicated admin timeline UI for order status transitions and optimistic row-level updates.
+- Supersedes: N/A

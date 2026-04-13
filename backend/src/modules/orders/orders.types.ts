@@ -42,3 +42,14 @@ export type OrderListResult = {
     totalPages: number
   }
 }
+
+export type UpdateOrderStatusResult = {
+  data: {
+    orderId: string
+    fromStatus: OrderStatus
+    toStatus: OrderStatus
+    note: string | null
+    changedByUserId: string | null
+    createdAt: Date
+  }
+}

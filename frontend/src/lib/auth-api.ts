@@ -88,6 +88,17 @@ export type OrderListResponse = {
   }
 }
 
+export type UpdateAdminOrderStatusResponse = {
+  data: {
+    orderId: string
+    fromStatus: OrderStatus
+    toStatus: OrderStatus
+    changedByUserId: string | null
+    note: string | null
+    createdAt: string
+  }
+}
+
 type AuthEnvelope = {
   data: {
     user: AuthUser
@@ -417,5 +428,25 @@ export async function listAdminOrders(
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+  })
+}
+
+export async function updateAdminOrderStatus(
+  accessToken: string,
+  payload: {
+    orderId: string
+    status: OrderStatus
+    note?: string
+  },
+) {
+  return request<UpdateAdminOrderStatusResponse>(`/admin/orders/${payload.orderId}/status`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      status: payload.status,
+      note: payload.note?.trim() || undefined,
+    }),
   })
 }
