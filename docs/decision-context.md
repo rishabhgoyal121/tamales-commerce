@@ -276,3 +276,42 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend error utilities, hooks, forms, test setup.
 - Follow-up Actions: Add component/integration tests for complete form submission flows.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-021 | Product Catalog as Primary Frontend Entry Module
+- Date: 2026-04-13
+- Decision ID: DEC-021
+- Decision: Introduce a dedicated `/products` page as the primary app landing route with server-driven filtering, sorting, and pagination.
+- Context: Needed to shift progress from error-hardening to feature breadth for portfolio impact.
+- Options Considered: Keep auth/cart as first user touchpoint, move to catalog-first journey.
+- Chosen Option: Catalog-first journey.
+- Rationale: Better ecommerce UX flow and stronger demo narrative for product/company interviews.
+- Risks / Edge Cases: Add-to-cart from catalog requires auth gating and clear user messaging for guests.
+- Impacted Modules / Files: frontend routing, nav layout, product API client, products page UI.
+- Follow-up Actions: Add order-history and admin-order modules as next screens.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-022 | My Orders Frontend Module with Server-side Filters
+- Date: 2026-04-13
+- Decision ID: DEC-022
+- Decision: Add protected `/orders` page backed by `GET /orders` with filter/sort/pagination controls.
+- Context: Needed a user-facing post-checkout lifecycle module to improve ecommerce flow completeness.
+- Options Considered: Minimal static orders placeholder, full server-driven listing module.
+- Chosen Option: Full server-driven listing module.
+- Rationale: Strengthens portfolio narrative around authenticated user account workflows.
+- Risks / Edge Cases: Limited order payload currently prevents rich item-level detail rendering.
+- Impacted Modules / Files: frontend orders page, routing, nav, API client types/functions.
+- Follow-up Actions: Add order detail endpoint/page with line items and address snapshot.
+- Supersedes: N/A
+
+## 2026-04-13 | DEC-023 | Admin Orders Frontend Module with User-Level Filter
+- Date: 2026-04-13
+- Decision ID: DEC-023
+- Decision: Add protected `/admin/orders` page backed by `GET /admin/orders` with `userId + status + paymentStatus + sort + pagination` controls.
+- Context: Needed an admin-facing operations surface using existing backend order listing capabilities.
+- Options Considered: Keep admin as basic role-check screen, add functional admin order management listing.
+- Chosen Option: Functional admin order listing.
+- Rationale: Demonstrates role-based UI capabilities and real operational visibility for portfolio/interviews.
+- Risks / Edge Cases: Large tables may require virtualized rendering in later phases.
+- Impacted Modules / Files: frontend admin orders page, API client, routing, nav.
+- Follow-up Actions: Add order-status update actions and optimistic admin mutations.
+- Supersedes: N/A

@@ -50,6 +50,9 @@ export function AppLayout() {
             </div>
 
             <nav className="mt-5 flex flex-wrap items-center gap-2">
+              <NavLink to="/products" className={navClassName}>
+                Products
+              </NavLink>
               {!isAuthenticated ? (
                 <>
                   <NavLink to="/login" className={navClassName}>
@@ -63,12 +66,20 @@ export function AppLayout() {
               <NavLink to="/cart" className={navClassName}>
                 Cart
               </NavLink>
+              <NavLink to="/orders" className={navClassName}>
+                My Orders
+              </NavLink>
               <NavLink to="/checkout-preview" className={navClassName}>
                 Checkout Preview
               </NavLink>
               <NavLink to="/admin" className={navClassName}>
                 Admin
               </NavLink>
+              {user?.role === 'ADMIN' ? (
+                <NavLink to="/admin/orders" className={navClassName}>
+                  Admin Orders
+                </NavLink>
+              ) : null}
             </nav>
 
             <Alert className="mt-5">

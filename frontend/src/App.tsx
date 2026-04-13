@@ -6,19 +6,22 @@ import { ProtectedRoute } from '@/components/routes/ProtectedRoute'
 import { RouteGateLoader } from '@/components/routes/RouteGateLoader'
 import { AuthSessionProvider, useAuthSession } from '@/hooks/useAuthSession'
 import { AdminPage } from '@/pages/AdminPage'
+import { AdminOrdersPage } from '@/pages/AdminOrdersPage'
 import { CartPage } from '@/pages/CartPage'
 import { CheckoutPreviewPage } from '@/pages/CheckoutPreviewPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { OrdersPage } from '@/pages/OrdersPage'
+import { ProductsPage } from '@/pages/ProductsPage'
 import { SignupPage } from '@/pages/SignupPage'
 
 function RootRedirect() {
-  const { isAuthenticated, bootstrapping } = useAuthSession()
+  const { bootstrapping } = useAuthSession()
 
   if (bootstrapping) {
     return <RouteGateLoader />
   }
 
-  return <Navigate to={isAuthenticated ? '/cart' : '/login'} replace />
+  return <Navigate to="/products" replace />
 }
 
 function AppRoutes() {
@@ -27,6 +30,7 @@ function AppRoutes() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<RootRedirect />} />
         <Route path="/auth" element={<Navigate to="/login" replace />} />
+        <Route path="/products" element={<ProductsPage />} />
 
         <Route element={<PublicOnlyRoute />}>
           <Route path="/login" element={<LoginPage />} />
@@ -34,11 +38,13 @@ function AppRoutes() {
         </Route>
 
         <Route element={<ProtectedRoute />}>
+          <Route path="/orders" element={<OrdersPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout-preview" element={<CheckoutPreviewPage />} />
 
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/orders" element={<AdminOrdersPage />} />
           </Route>
         </Route>
       </Route>
