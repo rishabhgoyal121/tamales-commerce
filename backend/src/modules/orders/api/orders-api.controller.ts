@@ -1,11 +1,17 @@
 import type { Request, Response } from 'express'
 import { AppError } from '../../../shared/errors/app-error.js'
 import {
+  listAdminOrderStatusTransitionsCoreController,
   listAdminOrdersCoreController,
   listCustomerOrdersCoreController,
   updateAdminOrderStatusCoreController,
 } from '../core/orders.core-controller.js'
 import { updateAdminOrderStatusSchema } from '../schema/orders.schema.js'
+
+function getOrderIdFromParams(req: Request) {
+  const orderIdRaw = req.params.orderId
+  return Array.isArray(orderIdRaw) ? orderIdRaw[0] : orderIdRaw
+}
 
 export async function listMyOrdersApiController(req: Request, res: Response) {
   if (!req.auth) {
@@ -30,8 +36,7 @@ export async function updateAdminOrderStatusApiController(req: Request, res: Res
     throw new AppError('UNAUTHORIZED', 'Authentication required', 401)
   }
 
-  const orderIdRaw = req.params.orderId
-  const orderId = Array.isArray(orderIdRaw) ? orderIdRaw[0] : orderIdRaw
+  const orderId = getOrderIdFromParams(req)
 
   if (!orderId) {
     throw new AppError('VALIDATION_ERROR', 'orderId path parameter is required', 422)
@@ -48,5 +53,15 @@ export async function updateAdminOrderStatusApiController(req: Request, res: Res
   }
 
   const result = await updateAdminOrderStatusCoreController(orderId, parsed.data, req.auth.userId)
+  res.json(result)
+}
+
+export async function listAdminOrderStatusTransitionsApiController(req: Request, res: Response) {
+  const orderId = getOrderIdFromParams(req)
+  if (!orderId) {
+    throw new AppError('VALIDATION_ERROR', 'orderId path parameter is required', 422)
+  }
+
+  const result = await listAdminOrderStatusTransitionsCoreController(orderId)
   res.json(result)
 }

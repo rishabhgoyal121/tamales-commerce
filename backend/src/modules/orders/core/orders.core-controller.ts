@@ -4,11 +4,13 @@ import {
   getOrderStatusById,
   listAdminOrders,
   listCustomerOrders,
+  listOrderStatusTransitions,
   updateOrderStatusWithTransition,
 } from '../service/orders.service.js'
 import type {
   AdminOrderListQuery,
   CustomerOrderListQuery,
+  OrderStatusTransitionHistoryResult,
   OrderListSort,
   UpdateOrderStatusResult,
 } from '../orders.types.js'
@@ -202,4 +204,15 @@ export async function updateAdminOrderStatusCoreController(
     note: input.note,
     changedByUserId,
   })
+}
+
+export async function listAdminOrderStatusTransitionsCoreController(
+  orderId: string,
+): Promise<OrderStatusTransitionHistoryResult> {
+  const currentOrder = await getOrderStatusById(orderId)
+  if (!currentOrder) {
+    throw new AppError('NOT_FOUND', 'Order not found', 404)
+  }
+
+  return listOrderStatusTransitions(orderId)
 }

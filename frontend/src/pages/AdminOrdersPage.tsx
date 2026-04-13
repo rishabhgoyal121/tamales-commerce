@@ -9,6 +9,7 @@ import { toStatusMessage } from '@/lib/api-error'
 import { formatCurrency } from '@/lib/currency'
 import {
   listAdminOrders,
+  listAdminOrderStatusTransitions,
   updateAdminOrderStatus,
   type OrderListSort,
   type OrderStatus,
@@ -62,6 +63,7 @@ export function AdminOrdersPage() {
   const [page, setPage] = useState(1)
   const [selectedStatuses, setSelectedStatuses] = useState<Record<string, OrderStatus>>({})
   const [notesByOrder, setNotesByOrder] = useState<Record<string, string>>({})
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
 
   const limit = 12
 
@@ -79,12 +81,19 @@ export function AdminOrdersPage() {
     enabled: !!accessToken,
   })
 
+  const historyQuery = useQuery({
+    queryKey: ['admin-order-status-history', selectedOrderId],
+    queryFn: () => listAdminOrderStatusTransitions(accessToken, selectedOrderId ?? ''),
+    enabled: !!accessToken && !!selectedOrderId,
+  })
+
   const updateOrderStatusMutation = useMutation({
     mutationFn: (payload: { orderId: string; status: OrderStatus; note?: string }) =>
       updateAdminOrderStatus(accessToken, payload),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] })
       queryClient.invalidateQueries({ queryKey: ['my-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['admin-order-status-history', response.data.orderId] })
       setStatusMessage(
         `Order ${response.data.orderId} moved ${response.data.fromStatus} -> ${response.data.toStatus}.`,
       )
@@ -246,7 +255,7 @@ export function AdminOrdersPage() {
                     <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Created</th>
                     <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Next Status</th>
                     <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Note</th>
-                    <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Action</th>
+                    <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -296,17 +305,28 @@ export function AdminOrdersPage() {
                           />
                         </td>
                         <td className="px-3 py-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleUpdateStatus(order.id, order.status)}
-                            disabled={
-                              allowedStatuses.length === 0 ||
-                              selectedStatus === order.status ||
-                              updateOrderStatusMutation.isPending
-                            }
-                          >
-                            Update
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateStatus(order.id, order.status)}
+                              disabled={
+                                allowedStatuses.length === 0 ||
+                                selectedStatus === order.status ||
+                                updateOrderStatusMutation.isPending
+                              }
+                            >
+                              Update
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedOrderId((current) => (current === order.id ? null : order.id))
+                              }}
+                            >
+                              {selectedOrderId === order.id ? 'Hide History' : 'View History'}
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     )
@@ -316,6 +336,37 @@ export function AdminOrdersPage() {
             </div>
           ) : null}
         </section>
+
+        {selectedOrderId ? (
+          <section className="mt-4 rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">
+            <p className="text-sm font-medium">Status History for {selectedOrderId}</p>
+
+            {historyQuery.isLoading ? (
+              <p className="mt-2 text-sm text-muted-foreground">Loading status history...</p>
+            ) : historyQuery.isError ? (
+              <p className="mt-2 text-sm text-destructive">
+                {toStatusMessage(historyQuery.error, 'Failed to load status history')}
+              </p>
+            ) : historyQuery.data?.data.length ? (
+              <ol className="mt-3 space-y-2">
+                {historyQuery.data.data.map((item) => (
+                  <li key={item.id} className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm">
+                    <p className="font-medium">
+                      {item.fromStatus} {'->'} {item.toStatus}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      By: {item.changedByEmail ?? item.changedByUserId ?? 'Unknown'} |{' '}
+                      {new Date(item.createdAt).toLocaleString()}
+                    </p>
+                    {item.note ? <p className="mt-1 text-xs text-slate-700">Note: {item.note}</p> : null}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">No status transitions recorded yet.</p>
+            )}
+          </section>
+        ) : null}
 
         <section className="mt-4 flex items-center justify-between rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm">
           <p>

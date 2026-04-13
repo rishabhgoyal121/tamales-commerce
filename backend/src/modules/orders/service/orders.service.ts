@@ -3,6 +3,7 @@ import { AppError } from '../../../shared/errors/app-error.js'
 import type {
   AdminOrderListQuery,
   CustomerOrderListQuery,
+  OrderStatusTransitionHistoryResult,
   OrderListResult,
   UpdateOrderStatusResult,
 } from '../orders.types.js'
@@ -158,4 +159,40 @@ export async function updateOrderStatusWithTransition(args: {
   })
 
   return { data: transition }
+}
+
+export async function listOrderStatusTransitions(
+  orderId: string,
+): Promise<OrderStatusTransitionHistoryResult> {
+  const transitions = await prisma.orderStatusTransition.findMany({
+    where: { orderId },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      orderId: true,
+      fromStatus: true,
+      toStatus: true,
+      changedByUserId: true,
+      note: true,
+      createdAt: true,
+      changedByUser: {
+        select: {
+          email: true,
+        },
+      },
+    },
+  })
+
+  return {
+    data: transitions.map((transition) => ({
+      id: transition.id,
+      orderId: transition.orderId,
+      fromStatus: transition.fromStatus,
+      toStatus: transition.toStatus,
+      changedByUserId: transition.changedByUserId,
+      changedByEmail: transition.changedByUser?.email ?? null,
+      note: transition.note,
+      createdAt: transition.createdAt,
+    })),
+  }
 }

@@ -53,3 +53,16 @@ export type UpdateOrderStatusResult = {
     createdAt: Date
   }
 }
+
+export type OrderStatusTransitionHistoryResult = {
+  data: Array<{
+    id: string
+    orderId: string
+    fromStatus: OrderStatus
+    toStatus: OrderStatus
+    changedByUserId: string | null
+    changedByEmail: string | null
+    note: string | null
+    createdAt: Date
+  }>
+}

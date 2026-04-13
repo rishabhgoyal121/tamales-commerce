@@ -9,6 +9,7 @@ import {
   updateCartItemApiController,
 } from './modules/cart/api/cart-api.controller.js'
 import {
+  listAdminOrderStatusTransitionsApiController,
   listAdminOrdersApiController,
   listMyOrdersApiController,
   updateAdminOrderStatusApiController,
@@ -42,6 +43,12 @@ router.patch(
   authenticate,
   requireRole('ADMIN'),
   updateAdminOrderStatusApiController,
+)
+router.get(
+  '/admin/orders/:orderId/status-transitions',
+  authenticate,
+  requireRole('ADMIN'),
+  listAdminOrderStatusTransitionsApiController,
 )
 router.get('/cart', authenticate, getCartApiController)
 router.post('/cart/items', authenticate, addCartItemApiController)

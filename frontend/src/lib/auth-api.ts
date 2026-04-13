@@ -99,6 +99,21 @@ export type UpdateAdminOrderStatusResponse = {
   }
 }
 
+export type OrderStatusTransitionItem = {
+  id: string
+  orderId: string
+  fromStatus: OrderStatus
+  toStatus: OrderStatus
+  changedByUserId: string | null
+  changedByEmail: string | null
+  note: string | null
+  createdAt: string
+}
+
+export type OrderStatusTransitionHistoryResponse = {
+  data: OrderStatusTransitionItem[]
+}
+
 type AuthEnvelope = {
   data: {
     user: AuthUser
@@ -448,5 +463,14 @@ export async function updateAdminOrderStatus(
       status: payload.status,
       note: payload.note?.trim() || undefined,
     }),
+  })
+}
+
+export async function listAdminOrderStatusTransitions(accessToken: string, orderId: string) {
+  return request<OrderStatusTransitionHistoryResponse>(`/admin/orders/${orderId}/status-transitions`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   })
 }

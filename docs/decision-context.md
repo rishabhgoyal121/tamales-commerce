@@ -328,3 +328,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: orders api/core/service, prisma schema+migration, admin orders frontend, openapi contract.
 - Follow-up Actions: Add dedicated admin timeline UI for order status transitions and optimistic row-level updates.
 - Supersedes: N/A
+
+## 2026-04-13 | DEC-025 | Admin Order Transition Timeline Read Model
+- Date: 2026-04-13
+- Decision ID: DEC-025
+- Decision: Add admin endpoint and UI to fetch/view status transition history per order.
+- Context: After enabling status updates, admins need traceability into who changed status and when.
+- Options Considered: Keep audit write-only in DB, expose read model endpoint for timeline visualization.
+- Chosen Option: Expose read model endpoint + timeline panel in admin UI.
+- Rationale: Improves operational debugging and gives complete lifecycle visibility.
+- Risks / Edge Cases: Additional per-order query cost when opening timelines; can be optimized with caching later.
+- Impacted Modules / Files: orders api/core/service, routes, openapi, admin orders frontend page, API client.
+- Follow-up Actions: Add pagination for long transition histories and actor role snapshots.
+- Supersedes: N/A
