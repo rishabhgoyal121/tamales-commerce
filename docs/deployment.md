@@ -23,7 +23,7 @@
 
 ### Option B: Manual Service
 - Root Directory: `backend`
-- Build Command: `npm install && npm run prisma:generate && npm run build`
+- Build Command: `npm install --include=dev && npm run prisma:generate && npm run build`
 - Start Command: `npm start`
 - Health Check Path: `/api/v1/health`
 
