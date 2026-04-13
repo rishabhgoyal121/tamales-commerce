@@ -34,6 +34,17 @@ cd backend
 DATABASE_URL="<your-production-db-url>" npm run prisma:migrate:deploy
 ```
 
+### If production DB was initialized earlier via `prisma db push`
+Use baseline resolve once so future deploys remain migration-driven and idempotent:
+```bash
+cd backend
+DATABASE_URL="<your-production-db-url>" npx prisma migrate resolve --applied 20260413103500_init_baseline
+```
+After that, regular deploys should continue using:
+```bash
+DATABASE_URL="<your-production-db-url>" npm run prisma:migrate:deploy
+```
+
 ## 4. Frontend Deployment (Netlify)
 - Import repo in Netlify from GitHub.
 - Set **Base directory** to `frontend`.
