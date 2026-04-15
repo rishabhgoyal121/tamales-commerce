@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { getHealthApiController } from './modules/health/api/health-api.controller.js'
 import {
   createAdminProductApiController,
+  getProductDetailApiController,
   listAdminCategoriesApiController,
   listAdminProductsApiController,
   listProductsApiController,
@@ -41,6 +42,7 @@ export const router = Router()
 
 router.get('/health', getHealthApiController)
 router.get('/products', listProductsApiController)
+router.get('/products/:productId', getProductDetailApiController)
 router.post('/auth/register', registerApiController)
 router.post('/auth/login', loginApiController)
 router.post('/auth/refresh', refreshApiController)

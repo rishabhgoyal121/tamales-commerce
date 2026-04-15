@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -300,13 +300,15 @@ export function ProductsPage() {
                       className="animate-fade-up rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
                     >
                       <div className="relative overflow-hidden rounded-md bg-slate-100">
-                        <SmartImage
-                          src={productImageBySlug[product.slug] ?? 'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=900&q=80'}
-                          alt={product.title}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-40 w-full object-cover"
-                        />
+                        <Link to={`/products/${product.id}`}>
+                          <SmartImage
+                            src={productImageBySlug[product.slug] ?? 'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=900&q=80'}
+                            alt={product.title}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-40 w-full object-cover"
+                          />
+                        </Link>
                         <button
                           type="button"
                           className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-slate-900 text-sm font-bold text-white shadow transition hover:bg-slate-700"
@@ -324,7 +326,11 @@ export function ProductsPage() {
                         </button>
                       </div>
                       <p className="mt-2 text-xs text-muted-foreground">{product.slug}</p>
-                      <h3 className="mt-1 text-base font-semibold">{product.title}</h3>
+                      <h3 className="mt-1 text-base font-semibold">
+                        <Link to={`/products/${product.id}`} className="hover:underline">
+                          {product.title}
+                        </Link>
+                      </h3>
                       <p className="mt-2 text-sm text-slate-700">{formatCurrency(product.priceCents)}</p>
                       <div className="mt-3 grid grid-cols-2 gap-2">
                         <Button

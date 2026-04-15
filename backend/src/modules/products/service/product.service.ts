@@ -5,6 +5,7 @@ import type {
   AdminProductListResult,
   CreateAdminProductInput,
   ProductListQuery,
+  ProductDetailResult,
   ProductListResult,
   UpdateAdminProductInput,
   UpdateAdminProductInventoryInput,
@@ -88,6 +89,54 @@ export async function listProducts(query: ProductListQuery): Promise<ProductList
       limit: query.limit,
       total,
       totalPages: Math.ceil(total / query.limit) || 1,
+    },
+  }
+}
+
+export async function getPublicProductDetailById(productId: string): Promise<ProductDetailResult | null> {
+  const product = await prisma.product.findFirst({
+    where: {
+      id: productId,
+      isActive: true,
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      priceCents: true,
+      categoryId: true,
+      category: {
+        select: {
+          name: true,
+        },
+      },
+      inventory: {
+        select: {
+          quantity: true,
+        },
+      },
+      createdAt: true,
+      updatedAt: true,
+    },
+  })
+
+  if (!product) {
+    return null
+  }
+
+  return {
+    data: {
+      id: product.id,
+      title: product.title,
+      slug: product.slug,
+      description: product.description,
+      priceCents: product.priceCents,
+      categoryId: product.categoryId,
+      categoryName: product.category.name,
+      inventoryQty: product.inventory?.quantity ?? 0,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
     },
   }
 }

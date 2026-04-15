@@ -42,6 +42,21 @@ export type ProductListResult = {
   }
 }
 
+export type ProductDetailResult = {
+  data: {
+    id: string
+    title: string
+    slug: string
+    description: string
+    priceCents: number
+    categoryId: string
+    categoryName: string
+    inventoryQty: number
+    createdAt: Date
+    updatedAt: Date
+  }
+}
+
 export type AdminProductListQuery = {
   q?: string
   categoryId?: string

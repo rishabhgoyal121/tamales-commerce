@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import { AppError } from '../../../shared/errors/app-error.js'
 import {
   createAdminProductCoreController,
+  getProductDetailCoreController,
   listAdminCategoriesCoreController,
   listAdminProductsCoreController,
   listProductsCoreController,
@@ -26,6 +27,12 @@ function resolvePathParam(req: Request, name: string) {
 
 export async function listProductsApiController(req: Request, res: Response) {
   const result = await listProductsCoreController(req.query as Record<string, unknown>)
+  res.json(result)
+}
+
+export async function getProductDetailApiController(req: Request, res: Response) {
+  const productId = resolvePathParam(req, 'productId')
+  const result = await getProductDetailCoreController(productId)
   res.json(result)
 }
 

@@ -10,6 +10,7 @@ import type {
 } from '../products.types.js'
 import {
   createAdminProduct,
+  getPublicProductDetailById,
   getCategoryById,
   getProductById,
   getProductBySlug,
@@ -190,6 +191,19 @@ export function normalizeAdminProductListQuery(rawQuery: Record<string, unknown>
 export async function listProductsCoreController(rawQuery: Record<string, unknown>) {
   const query = normalizeProductListQuery(rawQuery)
   return listProducts(query)
+}
+
+export async function getProductDetailCoreController(productId: string) {
+  if (!productId.trim()) {
+    throw new AppError('VALIDATION_ERROR', 'productId path parameter is required', 422)
+  }
+
+  const product = await getPublicProductDetailById(productId)
+  if (!product) {
+    throw new AppError('NOT_FOUND', 'Product not found', 404)
+  }
+
+  return product
 }
 
 export async function listAdminProductsCoreController(rawQuery: Record<string, unknown>) {

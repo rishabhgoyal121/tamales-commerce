@@ -60,6 +60,21 @@ export type ProductListResponse = {
   }
 }
 
+export type ProductDetailResponse = {
+  data: {
+    id: string
+    title: string
+    slug: string
+    description: string
+    priceCents: number
+    categoryId: string
+    categoryName: string
+    inventoryQty: number
+    createdAt: string
+    updatedAt: string
+  }
+}
+
 export type AdminCategoryOption = {
   id: string
   name: string
@@ -477,6 +492,12 @@ export async function listProducts(params: {
 
   const querySuffix = query.toString()
   return request<ProductListResponse>(`/products${querySuffix ? `?${querySuffix}` : ''}`, {
+    method: 'GET',
+  })
+}
+
+export async function getProductDetail(productId: string) {
+  return request<ProductDetailResponse>(`/products/${productId}`, {
     method: 'GET',
   })
 }

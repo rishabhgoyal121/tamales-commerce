@@ -271,6 +271,19 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: `backend/src/modules/products/*`, `backend/src/routes.ts`, `frontend/src/pages/AdminCatalogPage.tsx`, `frontend/src/lib/auth-api.ts`, admin navigation/routes.
 - Follow-up Actions: Add edit forms for price/title/description in admin grid and add audit trail for inventory changes.
 - Supersedes: N/A
+
+## 2026-04-15 | DEC-021 | Public Product Detail Endpoint and PDP Route
+- Date: 2026-04-15
+- Decision ID: DEC-021
+- Decision: Add public product detail API (`GET /products/:productId`) and dedicated frontend Product Detail Page route (`/products/:productId`).
+- Context: Product cards lacked a deep-link destination, reducing discoverability and conversion flow quality.
+- Options Considered: Keep list-only browsing, add PDP by slug, add PDP by productId.
+- Chosen Option: PDP by productId aligned with current API/list payload.
+- Rationale: Fastest path with minimal schema/API churn and clear route wiring from catalog cards.
+- Risks / Edge Cases: Product IDs are environment-specific and not as SEO-friendly as slug routes.
+- Impacted Modules / Files: products api/core/service/types, routes, frontend API client, app routes, products page, new product detail page.
+- Follow-up Actions: Consider adding canonical slug route (`/products/slug/:slug`) for SEO and cleaner public URLs.
+- Supersedes: N/A
 - Rationale: Faster user correction loops and stronger client-server contract alignment.
 - Risks / Edge Cases: Requires key alignment between backend field names and frontend form fields.
 - Impacted Modules / Files: auth/cart/checkout forms, frontend API error parsing utility.

@@ -10,6 +10,7 @@ import { AuthSessionProvider, useAuthSession } from '@/hooks/useAuthSession'
 
 const LandingPage = lazy(async () => ({ default: (await import('@/pages/LandingPage')).LandingPage }))
 const ProductsPage = lazy(async () => ({ default: (await import('@/pages/ProductsPage')).ProductsPage }))
+const ProductDetailPage = lazy(async () => ({ default: (await import('@/pages/ProductDetailPage')).ProductDetailPage }))
 const LoginPage = lazy(async () => ({ default: (await import('@/pages/LoginPage')).LoginPage }))
 const SignupPage = lazy(async () => ({ default: (await import('@/pages/SignupPage')).SignupPage }))
 const OrdersPage = lazy(async () => ({ default: (await import('@/pages/OrdersPage')).OrdersPage }))
@@ -34,6 +35,7 @@ function AppRoutes() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<Navigate to="/login" replace />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/:productId" element={<ProductDetailPage />} />
 
           <Route element={<PublicOnlyRoute />}>
             <Route path="/login" element={<LoginPage />} />
