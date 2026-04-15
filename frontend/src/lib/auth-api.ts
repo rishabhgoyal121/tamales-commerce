@@ -503,9 +503,27 @@ export async function getProductDetail(productId: string) {
 }
 
 export async function getProductDetailBySlug(slug: string) {
-  return request<ProductDetailResponse>(`/products/slug/${slug}`, {
-    method: 'GET',
-  })
+  try {
+    return await request<ProductDetailResponse>(`/products/slug/${slug}`, {
+      method: 'GET',
+    })
+  } catch (error) {
+    // Backward-compatible fallback for environments where the slug route
+    // is not deployed yet: resolve by listing products and fetch by product id.
+    if (isApiClientError(error) && error.status === 404) {
+      const list = await listProducts({
+        q: slug.replaceAll('-', ' '),
+        limit: 48,
+        sort: 'createdAt_desc',
+      })
+      const match = list.data.find((item) => item.slug === slug)
+      if (match) {
+        return getProductDetail(match.id)
+      }
+    }
+
+    throw error
+  }
 }
 
 export async function listMyOrders(
