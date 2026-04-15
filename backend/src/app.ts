@@ -13,18 +13,53 @@ import { logger } from './shared/logger/logger.js'
 import { errorHandler } from './shared/middleware/error-handler.js'
 import { notFoundHandler } from './shared/middleware/not-found.js'
 import { requestContext } from './shared/middleware/request-context.js'
+import { env } from './shared/config/env.js'
 
 const openApiPath = path.resolve(process.cwd(), 'openapi/openapi.yaml')
 const openApiDocument = parse(fs.readFileSync(openApiPath, 'utf8'))
 
 export const app = express()
-const isProduction = process.env.NODE_ENV === 'production'
+const isProduction = env.NODE_ENV === 'production'
+
+function normalizeOrigin(value: string) {
+  return value.trim().replace(/\/+$/, '')
+}
+
+const configuredOrigins = [
+  env.FRONTEND_ORIGIN,
+  ...(env.FRONTEND_ORIGINS
+    ? env.FRONTEND_ORIGINS.split(',').map((value) => value.trim())
+    : []),
+]
+  .filter((value): value is string => Boolean(value))
+  .map(normalizeOrigin)
+
+const allowedOrigins = new Set(configuredOrigins)
 
 app.use(helmet())
 app.set('trust proxy', 1)
 app.use(
   cors({
-    origin: isProduction ? process.env.FRONTEND_ORIGIN : true,
+    origin(origin, callback) {
+      if (!isProduction) {
+        callback(null, true)
+        return
+      }
+
+      // Allow non-browser and same-origin requests that send no Origin header.
+      if (!origin) {
+        callback(null, true)
+        return
+      }
+
+      const normalizedOrigin = normalizeOrigin(origin)
+      if (allowedOrigins.has(normalizedOrigin)) {
+        callback(null, true)
+        return
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`))
+    },
     credentials: true,
   }),
 )

@@ -420,6 +420,19 @@ This document tracks architecture and implementation decisions over time.
 - Follow-up Actions: Add environment-specific seed variants (dev/staging/demo).
 - Supersedes: N/A
 
+## 2026-04-16 | DEC-031 | Multi-Origin CORS Allowlist for Production
+- Date: 2026-04-16
+- Decision ID: DEC-031
+- Decision: Support multiple frontend origins via `FRONTEND_ORIGINS` (comma-separated) with normalized origin matching in production CORS policy.
+- Context: Deployed frontend requests (`auth/refresh`, product reviews) were failing due to strict single-origin checks and environment/domain variance.
+- Options Considered: Keep single `FRONTEND_ORIGIN`, move to normalized multi-origin allowlist.
+- Chosen Option: Normalized multi-origin allowlist while preserving `FRONTEND_ORIGIN` backward compatibility.
+- Rationale: Prevents accidental CORS breakage across primary Netlify domain, preview domains, and future frontend hosts.
+- Risks / Edge Cases: Misconfigured allowlist can still block traffic; over-broad allowlist can weaken origin restrictions.
+- Impacted Modules / Files: backend app CORS config, env schema, env example docs.
+- Follow-up Actions: Add staging and preview domains explicitly in Render env and validate cookie credential flow end-to-end.
+- Supersedes: N/A
+
 ## 2026-04-15 | DEC-030 | Product Ratings as Derived Read Model + One-Review-Per-User Write Model
 - Date: 2026-04-15
 - Decision ID: DEC-030
