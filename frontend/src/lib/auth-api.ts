@@ -502,6 +502,12 @@ export async function getProductDetail(productId: string) {
   })
 }
 
+export async function getProductDetailBySlug(slug: string) {
+  return request<ProductDetailResponse>(`/products/slug/${slug}`, {
+    method: 'GET',
+  })
+}
+
 export async function listMyOrders(
   accessToken: string,
   params: {

@@ -90,7 +90,7 @@ export const featuredDeals: MarketplaceProductCard[] = [
     title: 'Wireless Headphones Pro',
     priceLabel: '$89.99',
     badge: 'Top Rated',
-    href: '/products?q=headphones',
+    href: '/products/slug/wireless-headphones-pro',
     imageUrl:
       'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=900&q=80',
   },
@@ -99,7 +99,7 @@ export const featuredDeals: MarketplaceProductCard[] = [
     title: 'Smart Desk Lamp',
     priceLabel: '$24.99',
     badge: 'Deal',
-    href: '/products?q=lamp',
+    href: '/products/slug/smart-desk-lamp',
     imageUrl:
       'https://images.unsplash.com/photo-1543198126-a8ad8e47fb22?auto=format&fit=crop&w=900&q=80',
   },
@@ -108,7 +108,7 @@ export const featuredDeals: MarketplaceProductCard[] = [
     title: 'Yoga Mat Grip Plus',
     priceLabel: '$21.99',
     badge: 'Trending',
-    href: '/products?q=yoga',
+    href: '/products/slug/yoga-mat-grip-plus',
     imageUrl:
       'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=900&q=80',
   },
@@ -116,7 +116,7 @@ export const featuredDeals: MarketplaceProductCard[] = [
     id: 'deal-4',
     title: 'Mechanical Keyboard Lite',
     priceLabel: '$54.99',
-    href: '/products?q=keyboard',
+    href: '/products/slug/mechanical-keyboard-lite',
     imageUrl:
       'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=80',
   },
@@ -124,7 +124,7 @@ export const featuredDeals: MarketplaceProductCard[] = [
     id: 'deal-5',
     title: 'Ceramic Mug Set',
     priceLabel: '$17.99',
-    href: '/products?q=mug',
+    href: '/products/slug/ceramic-coffee-mug-set',
     imageUrl:
       'https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?auto=format&fit=crop&w=900&q=80',
   },
@@ -133,7 +133,7 @@ export const featuredDeals: MarketplaceProductCard[] = [
     title: 'Adjustable Dumbbells',
     priceLabel: '$119.99',
     badge: 'Limited Stock',
-    href: '/products?q=dumbbell',
+    href: '/products/slug/adjustable-dumbbells-20kg',
     imageUrl:
       'https://images.unsplash.com/photo-1637666062717-1c6bcfa4a4f4?auto=format&fit=crop&w=900&q=80',
   },

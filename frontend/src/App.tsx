@@ -35,6 +35,7 @@ function AppRoutes() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<Navigate to="/login" replace />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/slug/:slug" element={<ProductDetailPage />} />
           <Route path="/products/:productId" element={<ProductDetailPage />} />
 
           <Route element={<PublicOnlyRoute />}>

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
-import { addCartItem, getCart, getProductDetail } from '@/lib/auth-api'
+import { addCartItem, getCart, getProductDetail, getProductDetailBySlug } from '@/lib/auth-api'
 import { formatCurrency } from '@/lib/currency'
 import { notifyError, notifyInfo, notifySuccessWithAction } from '@/lib/notify'
 
@@ -37,14 +37,19 @@ function stockLabel(quantity: number) {
 export function ProductDetailPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { productId } = useParams<{ productId: string }>()
+  const { productId, slug } = useParams<{ productId: string; slug: string }>()
   const { isAuthenticated, accessToken, setStatusMessage } = useAuthSession()
   const [quantity, setQuantity] = useState(1)
 
   const detailQuery = useQuery({
-    queryKey: ['product-detail', productId],
-    queryFn: () => getProductDetail(productId ?? ''),
-    enabled: !!productId,
+    queryKey: ['product-detail', { productId, slug }],
+    queryFn: () => {
+      if (slug) {
+        return getProductDetailBySlug(slug)
+      }
+      return getProductDetail(productId ?? '')
+    },
+    enabled: !!productId || !!slug,
   })
 
   const cartQuery = useQuery({

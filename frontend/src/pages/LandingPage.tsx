@@ -9,7 +9,7 @@ import { HeroCarousel } from '@/components/marketplace/HeroCarousel'
 import { HorizontalProductCarousel } from '@/components/marketplace/HorizontalProductCarousel'
 import { OfferTicker } from '@/components/marketplace/OfferTicker'
 import { useAuthSession } from '@/hooks/useAuthSession'
-import { addCartItem, listProducts } from '@/lib/auth-api'
+import { addCartItem, getProductDetailBySlug, listProducts } from '@/lib/auth-api'
 import { categoryDeals, featuredDeals, heroSlides, quickOffers } from '@/lib/marketplace-data'
 import { notifyError, notifyInfo, notifySuccessWithAction } from '@/lib/notify'
 
@@ -34,8 +34,13 @@ export function LandingPage() {
   }
 
   const quickAddMutation = useMutation({
-    mutationFn: async (query: string) => {
-      const catalog = await listProducts({ q: query, limit: 1, sort: 'createdAt_desc' })
+    mutationFn: async (payload: { query?: string; slug?: string }) => {
+      if (payload.slug) {
+        const detail = await getProductDetailBySlug(payload.slug)
+        return addCartItem(accessToken, { productId: detail.data.id, quantity: 1 })
+      }
+
+      const catalog = await listProducts({ q: payload.query, limit: 1, sort: 'createdAt_desc' })
       const first = catalog.data[0]
       if (!first) {
         throw new Error('No matching product found for quick add')
@@ -68,7 +73,15 @@ export function LandingPage() {
       return
     }
 
+    const slugMatch = href.match(/^\/products\/slug\/([^/?#]+)/)
     const query = href.includes('?') ? new URLSearchParams(href.split('?')[1]).get('q') : null
+
+    if (slugMatch?.[1]) {
+      setQuickAddPendingId(itemId)
+      quickAddMutation.mutate({ slug: slugMatch[1] })
+      return
+    }
+
     if (!query?.trim()) {
       const message = 'Quick add is not available for this card yet.'
       setStatusMessage(message)
@@ -77,7 +90,7 @@ export function LandingPage() {
     }
 
     setQuickAddPendingId(itemId)
-    quickAddMutation.mutate(query.trim())
+    quickAddMutation.mutate({ query: query.trim() })
   }
 
   return (

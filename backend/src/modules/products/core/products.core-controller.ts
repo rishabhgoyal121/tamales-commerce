@@ -11,6 +11,7 @@ import type {
 import {
   createAdminProduct,
   getPublicProductDetailById,
+  getPublicProductDetailBySlug,
   getCategoryById,
   getProductById,
   getProductBySlug,
@@ -199,6 +200,19 @@ export async function getProductDetailCoreController(productId: string) {
   }
 
   const product = await getPublicProductDetailById(productId)
+  if (!product) {
+    throw new AppError('NOT_FOUND', 'Product not found', 404)
+  }
+
+  return product
+}
+
+export async function getProductDetailBySlugCoreController(slug: string) {
+  if (!slug.trim()) {
+    throw new AppError('VALIDATION_ERROR', 'slug path parameter is required', 422)
+  }
+
+  const product = await getPublicProductDetailBySlug(slug)
   if (!product) {
     throw new AppError('NOT_FOUND', 'Product not found', 404)
   }

@@ -3,6 +3,7 @@ import { AppError } from '../../../shared/errors/app-error.js'
 import {
   createAdminProductCoreController,
   getProductDetailCoreController,
+  getProductDetailBySlugCoreController,
   listAdminCategoriesCoreController,
   listAdminProductsCoreController,
   listProductsCoreController,
@@ -33,6 +34,12 @@ export async function listProductsApiController(req: Request, res: Response) {
 export async function getProductDetailApiController(req: Request, res: Response) {
   const productId = resolvePathParam(req, 'productId')
   const result = await getProductDetailCoreController(productId)
+  res.json(result)
+}
+
+export async function getProductDetailBySlugApiController(req: Request, res: Response) {
+  const slug = resolvePathParam(req, 'slug')
+  const result = await getProductDetailBySlugCoreController(slug)
   res.json(result)
 }
 
