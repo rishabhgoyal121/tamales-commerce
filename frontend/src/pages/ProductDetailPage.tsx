@@ -28,6 +28,39 @@ const productImageBySlug: Record<string, string> = {
     'https://images.unsplash.com/photo-1637666062717-1c6bcfa4a4f4?auto=format&fit=crop&w=900&q=80',
 }
 
+const productGalleryBySlug: Record<string, string[]> = {
+  'wireless-headphones-pro': [
+    'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1545127398-14699f92334b?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1400&q=80',
+  ],
+  'mechanical-keyboard-lite': [
+    'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1517336714739-489689fd1ca8?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=1400&q=80',
+  ],
+  'smart-desk-lamp': [
+    'https://images.unsplash.com/photo-1543198126-a8ad8e47fb22?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1400&q=80',
+  ],
+  'ceramic-coffee-mug-set': [
+    'https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=1400&q=80',
+  ],
+  'yoga-mat-grip-plus': [
+    'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=80',
+  ],
+  'adjustable-dumbbells-20kg': [
+    'https://images.unsplash.com/photo-1637666062717-1c6bcfa4a4f4?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1571019613576-2b22c76fd955?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1400&q=80',
+  ],
+}
+
 function stockLabel(quantity: number) {
   if (quantity <= 0) return { text: 'Out of stock', className: 'bg-rose-100 text-rose-700' }
   if (quantity <= 5) return { text: `Low stock (${quantity} left)`, className: 'bg-amber-100 text-amber-700' }
@@ -40,6 +73,8 @@ export function ProductDetailPage() {
   const { productId, slug } = useParams<{ productId: string; slug: string }>()
   const { isAuthenticated, accessToken, setStatusMessage } = useAuthSession()
   const [quantity, setQuantity] = useState(1)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
 
   const detailQuery = useQuery({
     queryKey: ['product-detail', { productId, slug }],
@@ -78,6 +113,14 @@ export function ProductDetailPage() {
   })
 
   const product = detailQuery.data?.data
+  const productImages = product
+    ? productGalleryBySlug[product.slug] ??
+      [
+        productImageBySlug[product.slug] ??
+          'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=1400&q=80',
+      ]
+    : []
+  const activeImage = productImages[activeImageIndex] ?? productImages[0]
   const cartItems = cartQuery.data?.data.items ?? []
   const isInCart = product ? cartItems.some((item) => item.productId === product.id) : false
   const selectedQty = Number.isNaN(quantity) || quantity < 1 ? 1 : quantity
@@ -134,6 +177,19 @@ export function ProductDetailPage() {
     ? `${product.title} in ${product.categoryName}. Price ${formatCurrency(product.priceCents)}.`
     : 'Browse product details and purchase options.'
 
+  const openGalleryAt = (index: number) => {
+    setActiveImageIndex(index)
+    setIsGalleryOpen(true)
+  }
+
+  const showPreviousImage = () => {
+    setActiveImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length)
+  }
+
+  const showNextImage = () => {
+    setActiveImageIndex((prev) => (prev + 1) % productImages.length)
+  }
+
   return (
     <>
       <Seo title={seoTitle} description={seoDescription} />
@@ -164,15 +220,38 @@ export function ProductDetailPage() {
             <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_360px]">
               <section className="space-y-3">
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                  <SmartImage
-                    src={
-                      productImageBySlug[product.slug] ??
-                      'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=1200&q=80'
-                    }
-                    alt={product.title}
-                    className="h-[320px] w-full object-cover"
-                  />
+                  <button
+                    type="button"
+                    className="block w-full cursor-zoom-in"
+                    onClick={() => openGalleryAt(activeImageIndex)}
+                    aria-label="Open full-screen product gallery"
+                  >
+                    <SmartImage
+                      src={activeImage}
+                      alt={product.title}
+                      className="h-[320px] w-full object-cover"
+                    />
+                  </button>
                 </div>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {productImages.map((imageUrl, index) => (
+                    <button
+                      key={`${product.slug}-thumb-${index}`}
+                      type="button"
+                      className={`overflow-hidden rounded-md border ${
+                        activeImageIndex === index ? 'border-slate-900' : 'border-slate-200'
+                      }`}
+                      onClick={() => setActiveImageIndex(index)}
+                    >
+                      <SmartImage
+                        src={imageUrl}
+                        alt={`${product.title} ${index + 1}`}
+                        className="h-16 w-16 object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-slate-500">Click image for almost full-screen carousel view.</p>
                 <p className="text-xs text-muted-foreground">SKU slug: {product.slug}</p>
                 <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3">
                   <p className="text-sm font-semibold text-slate-900">Description</p>
@@ -232,6 +311,68 @@ export function ProductDetailPage() {
           )}
         </CardContent>
       </Card>
+      {isGalleryOpen && product ? (
+        <div className="fixed inset-0 z-50 bg-black/85">
+          <div className="flex h-full w-full flex-col">
+            <div className="flex items-center justify-between p-4">
+              <p className="truncate text-sm font-semibold text-white">{product.title}</p>
+              <button
+                type="button"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/50 text-xl text-white"
+                onClick={() => setIsGalleryOpen(false)}
+                aria-label="Close gallery"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="relative flex-1 px-4 pb-4">
+              <button
+                type="button"
+                className="absolute left-6 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl text-slate-900"
+                onClick={showPreviousImage}
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
+              <div className="mx-auto h-full max-h-[88vh] max-w-[94vw] overflow-hidden rounded-xl border border-white/20 bg-black/20">
+                <SmartImage
+                  src={activeImage}
+                  alt={product.title}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <button
+                type="button"
+                className="absolute right-6 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl text-slate-900"
+                onClick={showNextImage}
+                aria-label="Next image"
+              >
+                ›
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 px-4 pb-6">
+              {productImages.map((imageUrl, index) => (
+                <button
+                  key={`${product.slug}-modal-${index}`}
+                  type="button"
+                  className={`overflow-hidden rounded-md border ${
+                    activeImageIndex === index ? 'border-white' : 'border-white/40'
+                  }`}
+                  onClick={() => setActiveImageIndex(index)}
+                >
+                  <SmartImage
+                    src={imageUrl}
+                    alt={`${product.title} preview ${index + 1}`}
+                    className="h-14 w-14 object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   )
 }
