@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -110,19 +109,51 @@ export function AppLayout() {
           <div className="ml-auto flex items-center gap-2">
             {isAuthenticated ? (
               <>
-                <Badge variant="success" className="hidden md:inline-flex">
-                  {user?.email}
-                </Badge>
-                <Badge variant="outline">{user?.role}</Badge>
                 <Link
                   to="/cart"
                   className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800"
                 >
                   Cart ({cartItemCount})
                 </Link>
-                <Button variant="destructive" size="sm" onClick={() => void signOut()} disabled={busy}>
-                  Logout
-                </Button>
+                <details className="group relative">
+                  <summary className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-800 transition hover:bg-slate-100">
+                    {(user?.email?.[0] ?? 'U').toUpperCase()}
+                  </summary>
+                  <div className="absolute right-0 top-11 z-50 w-56 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+                    <div className="mb-2 rounded-md bg-slate-50 p-2">
+                      <p className="truncate text-xs font-semibold text-slate-900">{user?.email}</p>
+                      <p className="text-xs text-slate-600">{user?.role}</p>
+                    </div>
+                    <Link
+                      to="/orders"
+                      className="block rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+                    >
+                      My Orders
+                    </Link>
+                    <Link
+                      to="/cart"
+                      className="block rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+                    >
+                      My Cart
+                    </Link>
+                    {user?.role === 'ADMIN' ? (
+                      <Link
+                        to="/admin"
+                        className="block rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+                      >
+                        Admin Panel
+                      </Link>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="mt-1 block w-full rounded-md px-2 py-1.5 text-left text-sm text-rose-700 hover:bg-rose-50"
+                      onClick={() => void signOut()}
+                      disabled={busy}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </details>
               </>
             ) : (
               <>
@@ -145,10 +176,12 @@ export function AppLayout() {
       </header>
 
       <div className="mx-auto w-full max-w-[1400px] px-3 py-4 sm:px-6">
-        <Alert className="mb-4">
-          <AlertTitle>Status</AlertTitle>
-          <AlertDescription>{statusMessage}</AlertDescription>
-        </Alert>
+        {location.pathname !== '/' ? (
+          <Alert className="mb-4">
+            <AlertTitle>Status</AlertTitle>
+            <AlertDescription>{statusMessage}</AlertDescription>
+          </Alert>
+        ) : null}
 
         <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)_280px]">
           <aside className="hidden lg:block">
