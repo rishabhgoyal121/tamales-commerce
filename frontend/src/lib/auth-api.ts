@@ -47,6 +47,8 @@ export type ProductListItem = {
   slug: string
   priceCents: number
   categoryId: string
+  ratingAverage: number
+  ratingCount: number
   createdAt: string
 }
 
@@ -70,8 +72,35 @@ export type ProductDetailResponse = {
     categoryId: string
     categoryName: string
     inventoryQty: number
+    ratingAverage: number
+    ratingCount: number
+    ratingBreakdown: Record<'1' | '2' | '3' | '4' | '5', number>
     createdAt: string
     updatedAt: string
+  }
+}
+
+export type ProductReviewListSort = 'createdAt_desc' | 'rating_desc' | 'rating_asc'
+
+export type ProductReviewListItem = {
+  id: string
+  productId: string
+  userId: string
+  userEmail: string
+  rating: number
+  title: string | null
+  comment: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type ProductReviewListResponse = {
+  data: ProductReviewListItem[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
   }
 }
 
@@ -524,6 +553,56 @@ export async function getProductDetailBySlug(slug: string) {
 
     throw error
   }
+}
+
+export async function listProductReviews(
+  productId: string,
+  params?: {
+    page?: number
+    limit?: number
+    sort?: ProductReviewListSort
+  },
+) {
+  const query = new URLSearchParams()
+  if (params?.page !== undefined) {
+    query.set('page', String(params.page))
+  }
+  if (params?.limit !== undefined) {
+    query.set('limit', String(params.limit))
+  }
+  if (params?.sort) {
+    query.set('sort', params.sort)
+  }
+
+  const querySuffix = query.toString()
+  return request<ProductReviewListResponse>(
+    `/products/${productId}/reviews${querySuffix ? `?${querySuffix}` : ''}`,
+    {
+      method: 'GET',
+    },
+  )
+}
+
+export async function upsertProductReview(
+  accessToken: string,
+  productId: string,
+  payload: {
+    rating: number
+    title?: string
+    comment?: string
+  },
+) {
+  return request<{ data: ProductReviewListItem }>(`/products/${productId}/reviews`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      rating: payload.rating,
+      title: payload.title?.trim() || undefined,
+      comment: payload.comment?.trim() || undefined,
+    }),
+  })
 }
 
 export async function listMyOrders(

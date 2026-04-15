@@ -5,8 +5,11 @@ import type {
   CreateAdminProductInput,
   ProductListQuery,
   ProductListSort,
+  ProductReviewListQuery,
+  ProductReviewListSort,
   UpdateAdminProductInput,
   UpdateAdminProductInventoryInput,
+  UpsertProductReviewInput,
 } from '../products.types.js'
 import {
   createAdminProduct,
@@ -17,7 +20,9 @@ import {
   getProductBySlug,
   listAdminCategoryOptions,
   listAdminProducts,
+  listProductReviews,
   listProducts,
+  upsertProductReview,
   updateAdminProduct,
   updateAdminProductInventory,
 } from '../service/product.service.js'
@@ -33,6 +38,7 @@ const ALLOWED_QUERY_KEYS = new Set([
 ])
 
 const ALLOWED_ADMIN_QUERY_KEYS = new Set(['q', 'categoryId', 'isActive', 'page', 'limit', 'sort'])
+const ALLOWED_REVIEW_QUERY_KEYS = new Set(['page', 'limit', 'sort'])
 
 const ALLOWED_SORTS: readonly ProductListSort[] = [
   'createdAt_desc',
@@ -49,6 +55,12 @@ const ALLOWED_ADMIN_SORTS: readonly AdminProductListSort[] = [
   'price_desc',
   'title_asc',
   'updatedAt_desc',
+]
+
+const ALLOWED_REVIEW_SORTS: readonly ProductReviewListSort[] = [
+  'createdAt_desc',
+  'rating_desc',
+  'rating_asc',
 ]
 
 function parseOptionalInt(value: unknown, key: string) {
@@ -218,6 +230,71 @@ export async function getProductDetailBySlugCoreController(slug: string) {
   }
 
   return product
+}
+
+export function normalizeProductReviewListQuery(
+  rawQuery: Record<string, unknown>,
+): ProductReviewListQuery {
+  const unknownKeys = Object.keys(rawQuery).filter((key) => !ALLOWED_REVIEW_QUERY_KEYS.has(key))
+  if (unknownKeys.length > 0) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      `Unsupported query parameters: ${unknownKeys.join(', ')}`,
+      422,
+    )
+  }
+
+  const parsedPage = rawQuery.page ? Number.parseInt(String(rawQuery.page), 10) : 1
+  if (Number.isNaN(parsedPage) || parsedPage < 1) {
+    throw new AppError('VALIDATION_ERROR', 'page must be a positive integer', 422)
+  }
+
+  const parsedLimit = rawQuery.limit ? Number.parseInt(String(rawQuery.limit), 10) : 10
+  if (Number.isNaN(parsedLimit) || parsedLimit < 1) {
+    throw new AppError('VALIDATION_ERROR', 'limit must be a positive integer', 422)
+  }
+
+  const limit = Math.min(parsedLimit, 50)
+  const sort = rawQuery.sort ? String(rawQuery.sort) : 'createdAt_desc'
+  if (!ALLOWED_REVIEW_SORTS.includes(sort as ProductReviewListSort)) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      `sort must be one of: ${ALLOWED_REVIEW_SORTS.join(', ')}`,
+      422,
+    )
+  }
+
+  return {
+    page: parsedPage,
+    limit,
+    sort: sort as ProductReviewListSort,
+  }
+}
+
+export async function listProductReviewsCoreController(
+  productId: string,
+  rawQuery: Record<string, unknown>,
+) {
+  const product = await getProductById(productId)
+  if (!product || !product.isActive) {
+    throw new AppError('NOT_FOUND', 'Product not found', 404)
+  }
+
+  const query = normalizeProductReviewListQuery(rawQuery)
+  return listProductReviews(productId, query)
+}
+
+export async function upsertProductReviewCoreController(
+  productId: string,
+  userId: string,
+  input: UpsertProductReviewInput,
+) {
+  const product = await getProductById(productId)
+  if (!product || !product.isActive) {
+    throw new AppError('NOT_FOUND', 'Product not found', 404)
+  }
+
+  return upsertProductReview(productId, userId, input)
 }
 
 export async function listAdminProductsCoreController(rawQuery: Record<string, unknown>) {

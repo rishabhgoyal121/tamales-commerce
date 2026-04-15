@@ -36,6 +36,14 @@ const productImageBySlug: Record<string, string> = {
     'https://images.unsplash.com/photo-1637666062717-1c6bcfa4a4f4?auto=format&fit=crop&w=900&q=80',
 }
 
+function formatRatingText(ratingAverage: number, ratingCount: number) {
+  if (ratingCount <= 0) {
+    return 'No ratings yet'
+  }
+
+  return `⭐ ${ratingAverage.toFixed(1)} (${ratingCount})`
+}
+
 export function ProductsPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -331,6 +339,9 @@ export function ProductsPage() {
                           {product.title}
                         </Link>
                       </h3>
+                      <p className="mt-1 text-xs font-medium text-amber-700">
+                        {formatRatingText(product.ratingAverage, product.ratingCount)}
+                      </p>
                       <p className="mt-2 text-sm text-slate-700">{formatCurrency(product.priceCents)}</p>
                       <div className="mt-3 grid grid-cols-2 gap-2">
                         <Button

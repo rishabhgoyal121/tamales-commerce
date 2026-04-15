@@ -6,7 +6,9 @@ import {
   getProductDetailBySlugApiController,
   listAdminCategoriesApiController,
   listAdminProductsApiController,
+  listProductReviewsApiController,
   listProductsApiController,
+  upsertProductReviewApiController,
   updateAdminProductApiController,
   updateAdminProductInventoryApiController,
 } from './modules/products/api/products-api.controller.js'
@@ -45,6 +47,8 @@ router.get('/health', getHealthApiController)
 router.get('/products', listProductsApiController)
 router.get('/products/slug/:slug', getProductDetailBySlugApiController)
 router.get('/products/:productId', getProductDetailApiController)
+router.get('/products/:productId/reviews', listProductReviewsApiController)
+router.post('/products/:productId/reviews', authenticate, upsertProductReviewApiController)
 router.post('/auth/register', registerApiController)
 router.post('/auth/login', loginApiController)
 router.post('/auth/refresh', refreshApiController)

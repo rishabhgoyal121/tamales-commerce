@@ -37,6 +37,13 @@ export const updateAdminProductInventorySchema = z.object({
   quantity: z.number().int().min(0).max(1_000_000),
 })
 
+export const upsertProductReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  title: z.string().trim().min(2).max(120).optional(),
+  comment: z.string().trim().min(4).max(2000).optional(),
+})
+
 export type CreateAdminProductBody = z.infer<typeof createAdminProductSchema>
 export type UpdateAdminProductBody = z.infer<typeof updateAdminProductSchema>
 export type UpdateAdminProductInventoryBody = z.infer<typeof updateAdminProductInventorySchema>
+export type UpsertProductReviewBody = z.infer<typeof upsertProductReviewSchema>

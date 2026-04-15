@@ -6,12 +6,15 @@ import {
   getProductDetailBySlugCoreController,
   listAdminCategoriesCoreController,
   listAdminProductsCoreController,
+  listProductReviewsCoreController,
   listProductsCoreController,
+  upsertProductReviewCoreController,
   updateAdminProductCoreController,
   updateAdminProductInventoryCoreController,
 } from '../core/products.core-controller.js'
 import {
   createAdminProductSchema,
+  upsertProductReviewSchema,
   updateAdminProductInventorySchema,
   updateAdminProductSchema,
 } from '../schema/products.schema.js'
@@ -24,6 +27,14 @@ function resolvePathParam(req: Request, name: string) {
   }
 
   return resolved
+}
+
+function requireUserId(req: Request) {
+  if (!req.auth) {
+    throw new AppError('UNAUTHORIZED', 'Authentication required', 401)
+  }
+
+  return req.auth.userId
 }
 
 export async function listProductsApiController(req: Request, res: Response) {
@@ -40,6 +51,30 @@ export async function getProductDetailApiController(req: Request, res: Response)
 export async function getProductDetailBySlugApiController(req: Request, res: Response) {
   const slug = resolvePathParam(req, 'slug')
   const result = await getProductDetailBySlugCoreController(slug)
+  res.json(result)
+}
+
+export async function listProductReviewsApiController(req: Request, res: Response) {
+  const productId = resolvePathParam(req, 'productId')
+  const result = await listProductReviewsCoreController(productId, req.query as Record<string, unknown>)
+  res.json(result)
+}
+
+export async function upsertProductReviewApiController(req: Request, res: Response) {
+  const userId = requireUserId(req)
+  const productId = resolvePathParam(req, 'productId')
+  const parsed = upsertProductReviewSchema.safeParse(req.body)
+
+  if (!parsed.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      'Invalid review payload',
+      422,
+      parsed.error.flatten(),
+    )
+  }
+
+  const result = await upsertProductReviewCoreController(productId, userId, parsed.data)
   res.json(result)
 }
 

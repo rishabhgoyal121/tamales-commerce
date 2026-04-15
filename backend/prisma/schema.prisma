@@ -38,6 +38,7 @@ model User {
   addresses              Address[]
   cart                   Cart?
   orders                 Order[]
+  productReviews         ProductReview[]
   refreshTokens          RefreshToken[]
   orderStatusTransitions OrderStatusTransition[]
 }
@@ -65,6 +66,23 @@ model Product {
   inventory   Inventory?
   cartItems   CartItem[]
   orderItems  OrderItem[]
+  reviews     ProductReview[]
+}
+
+model ProductReview {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  rating    Int
+  title     String?
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId])
+  @@index([productId, createdAt])
 }
 
 model Inventory {

@@ -419,3 +419,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: backend prisma seed script and package scripts.
 - Follow-up Actions: Add environment-specific seed variants (dev/staging/demo).
 - Supersedes: N/A
+
+## 2026-04-15 | DEC-030 | Product Ratings as Derived Read Model + One-Review-Per-User Write Model
+- Date: 2026-04-15
+- Decision ID: DEC-030
+- Decision: Add `ProductReview` model, derive product rating summary from reviews in product read APIs, and support authenticated review upsert per user/product.
+- Context: PDP required interview-grade review capability and prominent ratings in catalog/detail UI while preserving simple write semantics.
+- Options Considered: Store denormalized rating columns on product only, compute ratings from review rows with unique `(productId,userId)` writes.
+- Chosen Option: Compute summary from review rows and enforce one review per user/product using upsert.
+- Rationale: Keeps source of truth explicit, avoids stale denormalized counters in MVP, and demonstrates relational modeling + idempotent write behavior.
+- Risks / Edge Cases: Aggregate computation cost can grow with high review volume; future optimization may add cached counters/materialized stats.
+- Impacted Modules / Files: Prisma schema, products service/core/api/schemas/types, product listing/PDP UI, frontend API client contracts.
+- Follow-up Actions: Add review moderation, pagination controls in UI, and optional persisted rating aggregates for scale.
+- Supersedes: N/A

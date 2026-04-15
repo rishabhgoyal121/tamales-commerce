@@ -29,6 +29,8 @@ export type ProductListItem = {
   slug: string
   priceCents: number
   categoryId: string
+  ratingAverage: number
+  ratingCount: number
   createdAt: Date
 }
 
@@ -52,8 +54,41 @@ export type ProductDetailResult = {
     categoryId: string
     categoryName: string
     inventoryQty: number
+    ratingAverage: number
+    ratingCount: number
+    ratingBreakdown: Record<'1' | '2' | '3' | '4' | '5', number>
     createdAt: Date
     updatedAt: Date
+  }
+}
+
+export type ProductReviewListSort = 'createdAt_desc' | 'rating_desc' | 'rating_asc'
+
+export type ProductReviewListQuery = {
+  page: number
+  limit: number
+  sort: ProductReviewListSort
+}
+
+export type ProductReviewItem = {
+  id: string
+  productId: string
+  userId: string
+  userEmail: string
+  rating: number
+  title: string | null
+  comment: string | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type ProductReviewListResult = {
+  data: ProductReviewItem[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
   }
 }
 
@@ -116,4 +151,10 @@ export type UpdateAdminProductInput = {
 
 export type UpdateAdminProductInventoryInput = {
   quantity: number
+}
+
+export type UpsertProductReviewInput = {
+  rating: number
+  title?: string
+  comment?: string
 }

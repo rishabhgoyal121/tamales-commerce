@@ -4,11 +4,14 @@ import type {
   AdminProductListQuery,
   AdminProductListResult,
   CreateAdminProductInput,
-  ProductListQuery,
   ProductDetailResult,
+  ProductListQuery,
   ProductListResult,
+  ProductReviewListQuery,
+  ProductReviewListResult,
   UpdateAdminProductInput,
   UpdateAdminProductInventoryInput,
+  UpsertProductReviewInput,
 } from '../products.types.js'
 
 const SORT_TO_PRISMA_ORDER_BY: Record<
@@ -37,6 +40,34 @@ const ADMIN_SORT_TO_PRISMA_ORDER_BY: Record<
   price_desc: { priceCents: 'desc' },
   title_asc: { title: 'asc' },
   updatedAt_desc: { updatedAt: 'desc' },
+}
+
+const REVIEW_SORT_TO_ORDER_BY: Record<
+  ProductReviewListQuery['sort'],
+  { createdAt?: 'asc' | 'desc'; rating?: 'asc' | 'desc' }
+> = {
+  createdAt_desc: { createdAt: 'desc' },
+  rating_desc: { rating: 'desc' },
+  rating_asc: { rating: 'asc' },
+}
+
+type RatingBreakdown = Record<'1' | '2' | '3' | '4' | '5', number>
+
+function buildRatingSummary(ratings: number[]) {
+  const breakdown: RatingBreakdown = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 }
+  for (const rating of ratings) {
+    const key = String(rating) as keyof RatingBreakdown
+    if (key in breakdown) {
+      breakdown[key] += 1
+    }
+  }
+
+  const ratingCount = ratings.length
+  const ratingAverage = ratingCount
+    ? Number((ratings.reduce((sum, rating) => sum + rating, 0) / ratingCount).toFixed(1))
+    : 0
+
+  return { ratingAverage, ratingCount, ratingBreakdown: breakdown }
 }
 
 export async function listProducts(query: ProductListQuery): Promise<ProductListResult> {
@@ -77,18 +108,70 @@ export async function listProducts(query: ProductListQuery): Promise<ProductList
         priceCents: true,
         categoryId: true,
         createdAt: true,
+        reviews: {
+          select: { rating: true },
+        },
       },
     }),
     prisma.product.count({ where }),
   ])
 
   return {
-    data: products,
+    data: products.map((product) => {
+      const ratings = product.reviews.map((review) => review.rating)
+      const summary = buildRatingSummary(ratings)
+
+      return {
+        id: product.id,
+        title: product.title,
+        slug: product.slug,
+        priceCents: product.priceCents,
+        categoryId: product.categoryId,
+        ratingAverage: summary.ratingAverage,
+        ratingCount: summary.ratingCount,
+        createdAt: product.createdAt,
+      }
+    }),
     meta: {
       page: query.page,
       limit: query.limit,
       total,
       totalPages: Math.ceil(total / query.limit) || 1,
+    },
+  }
+}
+
+function mapProductDetail(product: {
+  id: string
+  title: string
+  slug: string
+  description: string
+  priceCents: number
+  categoryId: string
+  category: { name: string }
+  inventory: { quantity: number } | null
+  reviews: Array<{ rating: number }>
+  createdAt: Date
+  updatedAt: Date
+}): ProductDetailResult {
+  const ratings = product.reviews.map((review) => review.rating)
+  const summary = buildRatingSummary(ratings)
+
+  return {
+    data: {
+      id: product.id,
+      title: product.title,
+      slug: product.slug,
+      description: product.description,
+      priceCents: product.priceCents,
+      categoryId: product.categoryId,
+      categoryName: product.category.name,
+      inventoryQty: product.inventory?.quantity ?? 0,
+      ratingAverage: summary.ratingAverage,
+      ratingCount: summary.ratingCount,
+      ratingBreakdown: summary.ratingBreakdown,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
     },
   }
 }
@@ -116,6 +199,11 @@ export async function getPublicProductDetailById(productId: string): Promise<Pro
           quantity: true,
         },
       },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
       createdAt: true,
       updatedAt: true,
     },
@@ -125,20 +213,7 @@ export async function getPublicProductDetailById(productId: string): Promise<Pro
     return null
   }
 
-  return {
-    data: {
-      id: product.id,
-      title: product.title,
-      slug: product.slug,
-      description: product.description,
-      priceCents: product.priceCents,
-      categoryId: product.categoryId,
-      categoryName: product.category.name,
-      inventoryQty: product.inventory?.quantity ?? 0,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
-    },
-  }
+  return mapProductDetail(product)
 }
 
 export async function getPublicProductDetailBySlug(slug: string): Promise<ProductDetailResult | null> {
@@ -164,6 +239,11 @@ export async function getPublicProductDetailBySlug(slug: string): Promise<Produc
           quantity: true,
         },
       },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
       createdAt: true,
       updatedAt: true,
     },
@@ -173,18 +253,115 @@ export async function getPublicProductDetailBySlug(slug: string): Promise<Produc
     return null
   }
 
+  return mapProductDetail(product)
+}
+
+export async function listProductReviews(
+  productId: string,
+  query: ProductReviewListQuery,
+): Promise<ProductReviewListResult> {
+  const where = { productId }
+  const skip = (query.page - 1) * query.limit
+  const take = query.limit
+
+  const [reviews, total] = await Promise.all([
+    prisma.productReview.findMany({
+      where,
+      orderBy: REVIEW_SORT_TO_ORDER_BY[query.sort],
+      skip,
+      take,
+      select: {
+        id: true,
+        productId: true,
+        userId: true,
+        rating: true,
+        title: true,
+        comment: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    }),
+    prisma.productReview.count({ where }),
+  ])
+
+  return {
+    data: reviews.map((review) => ({
+      id: review.id,
+      productId: review.productId,
+      userId: review.userId,
+      userEmail: review.user.email,
+      rating: review.rating,
+      title: review.title,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
+    })),
+    meta: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit) || 1,
+    },
+  }
+}
+
+export async function upsertProductReview(
+  productId: string,
+  userId: string,
+  input: UpsertProductReviewInput,
+) {
+  const review = await prisma.productReview.upsert({
+    where: {
+      productId_userId: {
+        productId,
+        userId,
+      },
+    },
+    update: {
+      rating: input.rating,
+      title: input.title ?? null,
+      comment: input.comment ?? null,
+    },
+    create: {
+      productId,
+      userId,
+      rating: input.rating,
+      title: input.title ?? null,
+      comment: input.comment ?? null,
+    },
+    select: {
+      id: true,
+      productId: true,
+      userId: true,
+      rating: true,
+      title: true,
+      comment: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: {
+          email: true,
+        },
+      },
+    },
+  })
+
   return {
     data: {
-      id: product.id,
-      title: product.title,
-      slug: product.slug,
-      description: product.description,
-      priceCents: product.priceCents,
-      categoryId: product.categoryId,
-      categoryName: product.category.name,
-      inventoryQty: product.inventory?.quantity ?? 0,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
+      id: review.id,
+      productId: review.productId,
+      userId: review.userId,
+      userEmail: review.user.email,
+      rating: review.rating,
+      title: review.title,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
     },
   }
 }
