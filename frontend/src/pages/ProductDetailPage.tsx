@@ -577,9 +577,9 @@ export function ProductDetailPage() {
                           </p>
                           <p className="text-xs text-slate-500">{formatReviewDate(review.createdAt)}</p>
                         </div>
-                        <p className="mt-1 text-sm font-medium text-slate-800">
-                          {review.title || 'Untitled review'}
-                        </p>
+                        {review.title ? (
+                          <p className="mt-1 text-sm font-medium text-slate-800">{review.title}</p>
+                        ) : null}
                         {review.comment ? (
                           <p className="mt-1 text-sm text-slate-700">{review.comment}</p>
                         ) : null}
