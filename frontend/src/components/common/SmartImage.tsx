@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 const DEFAULT_FALLBACK_SRC = `data:image/svg+xml,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#e2e8f0"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient></defs><rect width="640" height="400" fill="url(#g)"/><g fill="#475569"><rect x="220" y="120" width="200" height="140" rx="12" opacity=".2"/><circle cx="280" cy="180" r="18" opacity=".5"/><path d="M250 235l45-38 30 28 25-20 40 30v15H250z" opacity=".5"/></g><text x="320" y="302" fill="#334155" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">Image unavailable</text></svg>',
 )}`
+const EMPTY_SOURCES: string[] = []
 
 type SmartImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
   src?: string | null
@@ -14,7 +15,7 @@ type SmartImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
 
 export function SmartImage({
   src,
-  sources = [],
+  sources = EMPTY_SOURCES,
   alt,
   className,
   onError,
@@ -34,6 +35,7 @@ export function SmartImage({
     // Preserve order while removing duplicates.
     return [...new Set(values)]
   }, [src, sources])
+  const candidateSourcesKey = candidateSources.join('|')
 
   const [currentSourceIndex, setCurrentSourceIndex] = useState(0)
   const [currentSrc, setCurrentSrc] = useState(candidateSources[0] ?? safeFallbackSrc)
@@ -43,7 +45,7 @@ export function SmartImage({
     setCurrentSourceIndex(0)
     setCurrentSrc(candidateSources[0] ?? safeFallbackSrc)
     setShowFallbackBlock(false)
-  }, [candidateSources, safeFallbackSrc])
+  }, [candidateSourcesKey, safeFallbackSrc])
 
   const label = useMemo(() => placeholderLabel ?? alt ?? 'Image unavailable', [alt, placeholderLabel])
 

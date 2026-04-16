@@ -458,3 +458,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend `SmartImage`, homepage deal carousel, product detail gallery, marketplace data.
 - Follow-up Actions: Move product image arrays to backend model in later phase to avoid hardcoded frontend image catalogs.
 - Supersedes: N/A
+
+## 2026-04-16 | DEC-033 | Stabilize SmartImage Fallback State to Prevent Re-render Flicker
+- Date: 2026-04-16
+- Decision ID: DEC-033
+- Decision: Use stable default `sources` reference and effect keying by serialized source key in `SmartImage`.
+- Context: Some cards with unreachable image URLs were continuously flickering due to repeated image state re-initialization on each render.
+- Options Considered: Keep render-time array defaults, stabilize source identity and reset logic.
+- Chosen Option: Stable defaults + deterministic reset dependencies.
+- Rationale: Prevents fallback loops while preserving sequential image source fallback behavior.
+- Risks / Edge Cases: Serializing source arrays assumes predictable ordering; source order is intentionally preserved.
+- Impacted Modules / Files: frontend `SmartImage` component.
+- Follow-up Actions: If image metadata moves server-side, include explicit primary/secondary ordering guarantees.
+- Supersedes: N/A
