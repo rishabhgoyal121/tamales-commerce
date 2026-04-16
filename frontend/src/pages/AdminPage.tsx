@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Seo } from '@/components/seo/Seo'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthSession } from '@/hooks/useAuthSession'
 
 export function AdminPage() {
-  const { user, busy, checkAdmin } = useAuthSession()
+  const { busy, checkAdmin } = useAuthSession()
 
   return (
     <>
@@ -13,9 +13,6 @@ export function AdminPage() {
       <Card className="border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Admin Console</CardTitle>
-          <CardDescription>
-            Manage catalog and order operations. Signed in role: {user?.role}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">

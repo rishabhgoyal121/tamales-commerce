@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Seo } from '@/components/seo/Seo'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
 import { formatCurrency } from '@/lib/currency'
@@ -25,7 +25,6 @@ export function OrderDetailPage() {
       <Card className="border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Order Detail</CardTitle>
-          <CardDescription>View items, pricing breakdown, address, and status timeline.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4">

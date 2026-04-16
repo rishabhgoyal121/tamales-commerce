@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Seo } from '@/components/seo/Seo'
@@ -186,7 +186,6 @@ export function AdminCatalogPage() {
       <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Admin Catalog</CardTitle>
-          <CardDescription>Create products, control status, and update inventory quickly.</CardDescription>
         </CardHeader>
         <CardContent>
           <section className="rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">

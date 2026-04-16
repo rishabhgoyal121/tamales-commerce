@@ -497,3 +497,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend app layout and admin landing copy.
 - Follow-up Actions: If needed, add internal-only debug panel behind feature flag for developer diagnostics.
 - Supersedes: N/A
+
+## 2026-04-16 | DEC-036 | Remove Non-Essential Page Subtitles for Product-Grade UX
+- Date: 2026-04-16
+- Decision ID: DEC-036
+- Decision: Remove non-essential page-level card subtitles (`CardDescription`) across customer, auth, checkout, and admin pages.
+- Context: Subtitle copy was making core flows feel instructional/demo-like instead of product-grade.
+- Options Considered: Keep existing explanatory subtitles, remove non-essential subtitles and rely on concise titles plus contextual UI.
+- Chosen Option: Remove non-essential subtitles globally for core pages.
+- Rationale: Cleaner information hierarchy and stronger production product feel.
+- Risks / Edge Cases: Slight reduction in onboarding guidance for first-time users.
+- Impacted Modules / Files: frontend page headers across auth, catalog, cart, checkout, orders, and admin modules.
+- Follow-up Actions: Reintroduce targeted helper text only where conversion or support metrics justify it.
+- Supersedes: N/A

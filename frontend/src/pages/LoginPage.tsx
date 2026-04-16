@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Seo } from '@/components/seo/Seo'
@@ -60,7 +60,6 @@ export function LoginPage() {
       <Card className="animate-fade-up mx-auto max-w-xl border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Login</CardTitle>
-          <CardDescription>Access your account to use cart and checkout.</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={(event) => void handleSubmit(onSubmit)(event)}>

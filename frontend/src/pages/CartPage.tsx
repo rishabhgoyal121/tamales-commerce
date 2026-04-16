@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { CartTable } from '@/components/cart/CartTable'
 import { Seo } from '@/components/seo/Seo'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
@@ -80,9 +80,6 @@ export function CartPage() {
       <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Cart Workspace</CardTitle>
-          <CardDescription>
-            One smooth flow: add items, confirm quantities, then continue to checkout.
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <section className="mb-4 animate-slide-up rounded-lg border border-emerald-200 bg-emerald-50/80 p-4">

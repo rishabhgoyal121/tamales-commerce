@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Seo } from '@/components/seo/Seo'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
@@ -100,7 +100,6 @@ export function OrdersPage() {
       <Card className="border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>My Orders</CardTitle>
-          <CardDescription>Track order and payment statuses with server-side filters and pagination.</CardDescription>
         </CardHeader>
         <CardContent>
           <section className="rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">

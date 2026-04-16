@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Seo } from '@/components/seo/Seo'
@@ -124,7 +124,6 @@ export function CheckoutPreviewPage() {
       <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Checkout</CardTitle>
-          <CardDescription>Preview pricing, enter shipping details, and place your order.</CardDescription>
         </CardHeader>
         <CardContent>
           <section className="mb-4 grid gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 p-3 text-xs sm:grid-cols-3">

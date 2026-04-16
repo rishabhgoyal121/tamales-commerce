@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Seo } from '@/components/seo/Seo'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
@@ -140,7 +140,6 @@ export function AdminOrdersPage() {
       <Card className="border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Admin Orders</CardTitle>
-          <CardDescription>Manage and inspect all customer orders across statuses.</CardDescription>
         </CardHeader>
         <CardContent>
         <section className="rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { SmartImage } from '@/components/common/SmartImage'
@@ -222,9 +222,6 @@ export function ProductsPage() {
       <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Products</CardTitle>
-          <CardDescription>
-            Browse catalog, add quickly to cart, or use Buy Now for direct checkout.
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <section className="animate-fade-up rounded-lg border border-slate-200/80 bg-slate-50/80 p-4">

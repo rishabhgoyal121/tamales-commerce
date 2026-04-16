@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { SmartImage } from '@/components/common/SmartImage'
 import { Seo } from '@/components/seo/Seo'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
@@ -352,7 +352,6 @@ export function ProductDetailPage() {
       <Card className="animate-fade-up border-slate-200/80 bg-white/95">
         <CardHeader>
           <CardTitle>Product Detail</CardTitle>
-          <CardDescription>Review product details, quantity, stock, and purchase actions.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
