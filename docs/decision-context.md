@@ -510,3 +510,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend page headers across auth, catalog, cart, checkout, orders, and admin modules.
 - Follow-up Actions: Reintroduce targeted helper text only where conversion or support metrics justify it.
 - Supersedes: N/A
+
+## 2026-04-16 | DEC-037 | Hide Empty Rating Meta on Product Cards
+- Date: 2026-04-16
+- Decision ID: DEC-037
+- Decision: Do not render rating text on product cards when `ratingCount` is zero.
+- Context: Explicit "No ratings yet" labels on listing cards were adding visual noise and reducing polish.
+- Options Considered: Show "No ratings yet" text, hide rating metadata until first rating exists.
+- Chosen Option: Hide rating metadata for unrated products.
+- Rationale: Cleaner card layout and stronger production visual quality.
+- Risks / Edge Cases: Users may not immediately infer a product has no ratings.
+- Impacted Modules / Files: frontend products listing page card rendering.
+- Follow-up Actions: Optionally add subtle neutral icon treatment if analytics suggests rating discoverability drop.
+- Supersedes: N/A

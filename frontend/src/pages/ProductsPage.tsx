@@ -38,7 +38,7 @@ const productImageBySlug: Record<string, string> = {
 
 function formatRatingText(ratingAverage: number, ratingCount: number) {
   if (ratingCount <= 0) {
-    return 'No ratings yet'
+    return null
   }
 
   return `⭐ ${ratingAverage.toFixed(1)} (${ratingCount})`
@@ -298,6 +298,7 @@ export function ProductsPage() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {products.map((product) => {
                   const isInCart = cartProductIds.has(product.id)
+                  const ratingText = formatRatingText(product.ratingAverage, product.ratingCount)
 
                   return (
                     <article
@@ -336,9 +337,11 @@ export function ProductsPage() {
                           {product.title}
                         </Link>
                       </h3>
-                      <p className="mt-1 text-xs font-medium text-amber-700">
-                        {formatRatingText(product.ratingAverage, product.ratingCount)}
-                      </p>
+                      {ratingText ? (
+                        <p className="mt-1 text-xs font-medium text-amber-700">
+                          {ratingText}
+                        </p>
+                      ) : null}
                       <p className="mt-2 text-sm text-slate-700">{formatCurrency(product.priceCents)}</p>
                       <div className="mt-3 grid grid-cols-2 gap-2">
                         <Button
