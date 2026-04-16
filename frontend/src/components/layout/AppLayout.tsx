@@ -2,7 +2,6 @@ import { useMemo, useState, type FormEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthSession } from '@/hooks/useAuthSession'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -42,7 +41,6 @@ export function AppLayout() {
   const {
     isAuthenticated,
     user,
-    statusMessage,
     signOut,
     busy,
     accessToken,
@@ -180,13 +178,6 @@ export function AppLayout() {
       </header>
 
       <div className="mx-auto w-full max-w-[1400px] px-3 py-4 sm:px-6">
-        {location.pathname !== '/' ? (
-          <Alert className="mb-4">
-            <AlertTitle>Status</AlertTitle>
-            <AlertDescription>{statusMessage}</AlertDescription>
-          </Alert>
-        ) : null}
-
         <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)_280px]">
           <aside className="hidden lg:block">
             <Card className="animate-fade-up border-slate-200/80 bg-white/95 p-4">
@@ -270,7 +261,7 @@ export function AppLayout() {
         <div className="mx-auto grid w-full max-w-[1400px] gap-6 px-3 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
           <div>
             <p className="text-sm font-semibold">Tamales Marketplace</p>
-            <p className="mt-2 text-xs text-slate-600">Portfolio-grade full stack ecommerce build.</p>
+            <p className="mt-2 text-xs text-slate-600">A modern marketplace for everyday shopping.</p>
           </div>
           <div>
             <p className="text-sm font-semibold">Customer</p>
@@ -298,7 +289,7 @@ export function AppLayout() {
           </div>
         </div>
         <p className="border-t border-slate-200 px-3 py-3 text-center text-xs text-slate-500 sm:px-6">
-          © 2026 Tamales Commerce. Built for portfolio and interview readiness.
+          © 2026 Tamales Commerce. All rights reserved.
         </p>
       </footer>
 

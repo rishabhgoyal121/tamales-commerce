@@ -484,3 +484,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend app layout search form, landing page search form.
 - Follow-up Actions: Ensure all future form controls include stable `id`/`name` pairs.
 - Supersedes: N/A
+
+## 2026-04-16 | DEC-035 | Product-Grade UI Copy and Status Surface Cleanup
+- Date: 2026-04-16
+- Decision ID: DEC-035
+- Decision: Remove global in-page status card and replace portfolio-oriented UI copy with production product messaging.
+- Context: User experience should reflect a real customer-facing product rather than a development/portfolio artifact.
+- Options Considered: Keep status card and existing copy, remove status card and standardize product-grade copy.
+- Chosen Option: Remove status card and revise visible copy in shared layout/admin entry surfaces.
+- Rationale: Cleaner UX and more professional positioning while preserving operational feedback via targeted toasts and page-level states.
+- Risks / Edge Cases: Some debugging visibility is reduced without global status banner.
+- Impacted Modules / Files: frontend app layout and admin landing copy.
+- Follow-up Actions: If needed, add internal-only debug panel behind feature flag for developer diagnostics.
+- Supersedes: N/A

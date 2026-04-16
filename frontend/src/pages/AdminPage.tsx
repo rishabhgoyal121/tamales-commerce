@@ -14,7 +14,7 @@ export function AdminPage() {
         <CardHeader>
           <CardTitle>Admin Console</CardTitle>
           <CardDescription>
-            This route is protected by admin guard. Current role: {user?.role}
+            Manage catalog and order operations. Signed in role: {user?.role}
           </CardDescription>
         </CardHeader>
         <CardContent>
