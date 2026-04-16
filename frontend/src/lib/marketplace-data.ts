@@ -19,6 +19,7 @@ export type MarketplaceProductCard = {
   title: string
   priceLabel: string
   imageUrl: string
+  imageUrls?: string[]
   badge?: string
   href: string
 }
@@ -127,6 +128,10 @@ export const featuredDeals: MarketplaceProductCard[] = [
     href: '/products/slug/ceramic-coffee-mug-set',
     imageUrl:
       'https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?auto=format&fit=crop&w=900&q=80',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=900&q=80',
+    ],
   },
   {
     id: 'deal-6',

@@ -90,6 +90,15 @@ function formatReviewDate(value: string) {
   }).format(new Date(value))
 }
 
+function isImageReachable(url: string) {
+  return new Promise<boolean>((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve(true)
+    img.onerror = () => resolve(false)
+    img.src = url
+  })
+}
+
 export function ProductDetailPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -98,6 +107,7 @@ export function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [visibleProductImages, setVisibleProductImages] = useState<string[]>([])
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewTitle, setReviewTitle] = useState('')
   const [reviewComment, setReviewComment] = useState('')
@@ -167,14 +177,14 @@ export function ProductDetailPage() {
     },
   })
 
-  const productImages = product
+  const rawProductImages = product
     ? productGalleryBySlug[product.slug] ??
       [
         productImageBySlug[product.slug] ??
           'https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?auto=format&fit=crop&w=1400&q=80',
       ]
     : []
-  const activeImage = productImages[activeImageIndex] ?? productImages[0]
+  const activeImage = visibleProductImages[activeImageIndex] ?? visibleProductImages[0]
   const cartItems = cartQuery.data?.data.items ?? []
   const isInCart = product ? cartItems.some((item) => item.productId === product.id) : false
   const selectedQty = Number.isNaN(quantity) || quantity < 1 ? 1 : quantity
@@ -194,6 +204,33 @@ export function ProductDetailPage() {
     setReviewTitle('')
     setReviewComment('')
   }, [myExistingReview?.id])
+
+  useEffect(() => {
+    if (rawProductImages.length === 0) {
+      setVisibleProductImages([])
+      setActiveImageIndex(0)
+      return
+    }
+
+    let isCancelled = false
+
+    const resolveReachableImages = async () => {
+      const checks = await Promise.all(rawProductImages.map((url) => isImageReachable(url)))
+      if (isCancelled) {
+        return
+      }
+
+      const reachable = rawProductImages.filter((_, index) => checks[index])
+      setVisibleProductImages(reachable)
+      setActiveImageIndex(0)
+    }
+
+    void resolveReachableImages()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [rawProductImages.join('|')])
 
   const addCurrentProductToCart = async () => {
     if (!product) {
@@ -285,16 +322,28 @@ export function ProductDetailPage() {
     : 'Browse product details and purchase options.'
 
   const openGalleryAt = (index: number) => {
+    if (visibleProductImages.length === 0) {
+      return
+    }
+
     setActiveImageIndex(index)
     setIsGalleryOpen(true)
   }
 
   const showPreviousImage = () => {
-    setActiveImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length)
+    if (visibleProductImages.length === 0) {
+      return
+    }
+
+    setActiveImageIndex((prev) => (prev - 1 + visibleProductImages.length) % visibleProductImages.length)
   }
 
   const showNextImage = () => {
-    setActiveImageIndex((prev) => (prev + 1) % productImages.length)
+    if (visibleProductImages.length === 0) {
+      return
+    }
+
+    setActiveImageIndex((prev) => (prev + 1) % visibleProductImages.length)
   }
 
   return (
@@ -327,25 +376,26 @@ export function ProductDetailPage() {
             <div className="space-y-6">
               <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_360px]">
                 <section className="space-y-3">
-                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                  <button
+                    type="button"
+                    className={`block w-full ${visibleProductImages.length > 0 ? 'cursor-zoom-in' : ''}`}
+                    onClick={() => openGalleryAt(activeImageIndex)}
+                    aria-label="Open full-screen product gallery"
+                    disabled={visibleProductImages.length === 0}
+                  >
+                    <SmartImage
+                      src={activeImage}
+                      alt={product.title}
+                      className="h-[320px] w-full object-cover"
+                    />
+                  </button>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {visibleProductImages.map((imageUrl, index) => (
                     <button
+                      key={`${product.slug}-thumb-${index}`}
                       type="button"
-                      className="block w-full cursor-zoom-in"
-                      onClick={() => openGalleryAt(activeImageIndex)}
-                      aria-label="Open full-screen product gallery"
-                    >
-                      <SmartImage
-                        src={activeImage}
-                        alt={product.title}
-                        className="h-[320px] w-full object-cover"
-                      />
-                    </button>
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto pb-1">
-                    {productImages.map((imageUrl, index) => (
-                      <button
-                        key={`${product.slug}-thumb-${index}`}
-                        type="button"
                         className={`overflow-hidden rounded-md border ${
                           activeImageIndex === index ? 'border-slate-900' : 'border-slate-200'
                         }`}
@@ -564,6 +614,7 @@ export function ProductDetailPage() {
                 className="absolute left-6 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl text-slate-900"
                 onClick={showPreviousImage}
                 aria-label="Previous image"
+                disabled={visibleProductImages.length <= 1}
               >
                 ‹
               </button>
@@ -579,13 +630,14 @@ export function ProductDetailPage() {
                 className="absolute right-6 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl text-slate-900"
                 onClick={showNextImage}
                 aria-label="Next image"
+                disabled={visibleProductImages.length <= 1}
               >
                 ›
               </button>
             </div>
 
             <div className="flex items-center justify-center gap-2 px-4 pb-6">
-              {productImages.map((imageUrl, index) => (
+              {visibleProductImages.map((imageUrl, index) => (
                 <button
                   key={`${product.slug}-modal-${index}`}
                   type="button"

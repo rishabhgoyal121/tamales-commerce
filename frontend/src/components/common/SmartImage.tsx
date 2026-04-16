@@ -7,12 +7,14 @@ const DEFAULT_FALLBACK_SRC = `data:image/svg+xml,${encodeURIComponent(
 
 type SmartImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
   src?: string | null
+  sources?: string[]
   fallbackSrc?: string
   placeholderLabel?: string
 }
 
 export function SmartImage({
   src,
+  sources = [],
   alt,
   className,
   onError,
@@ -23,20 +25,37 @@ export function SmartImage({
   placeholderLabel,
   ...rest
 }: SmartImageProps) {
-  const primarySrc = src?.trim() ? src : fallbackSrc
   const safeFallbackSrc = fallbackSrc.trim() ? fallbackSrc : DEFAULT_FALLBACK_SRC
-  const [currentSrc, setCurrentSrc] = useState(primarySrc)
+  const candidateSources = useMemo(() => {
+    const values = [src ?? '', ...sources]
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0)
+
+    // Preserve order while removing duplicates.
+    return [...new Set(values)]
+  }, [src, sources])
+
+  const [currentSourceIndex, setCurrentSourceIndex] = useState(0)
+  const [currentSrc, setCurrentSrc] = useState(candidateSources[0] ?? safeFallbackSrc)
   const [showFallbackBlock, setShowFallbackBlock] = useState(false)
 
   useEffect(() => {
-    setCurrentSrc(primarySrc)
+    setCurrentSourceIndex(0)
+    setCurrentSrc(candidateSources[0] ?? safeFallbackSrc)
     setShowFallbackBlock(false)
-  }, [primarySrc])
+  }, [candidateSources, safeFallbackSrc])
 
   const label = useMemo(() => placeholderLabel ?? alt ?? 'Image unavailable', [alt, placeholderLabel])
 
   const handleError = (event: SyntheticEvent<HTMLImageElement>) => {
     onError?.(event)
+
+    const nextSource = candidateSources[currentSourceIndex + 1]
+    if (nextSource) {
+      setCurrentSourceIndex((value) => value + 1)
+      setCurrentSrc(nextSource)
+      return
+    }
 
     if (currentSrc !== safeFallbackSrc) {
       setCurrentSrc(safeFallbackSrc)

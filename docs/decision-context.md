@@ -445,3 +445,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: Prisma schema, products service/core/api/schemas/types, product listing/PDP UI, frontend API client contracts.
 - Follow-up Actions: Add review moderation, pagination controls in UI, and optional persisted rating aggregates for scale.
 - Supersedes: N/A
+
+## 2026-04-16 | DEC-032 | Multi-Source Image Fallback and Reachability Filtering
+- Date: 2026-04-16
+- Decision ID: DEC-032
+- Decision: Add sequential image-source fallback for product cards and filter unreachable gallery images on PDP before rendering thumbnails/carousel.
+- Context: Some primary product image URLs were unreachable, causing blank home cards and broken-first-image experience on PDP.
+- Options Considered: Keep single URL + placeholder fallback, add chained source fallback and hide unreachable gallery entries.
+- Chosen Option: Chained fallback in `SmartImage` plus PDP reachability filtering.
+- Rationale: Preserves visual continuity by showing next available product image instead of placeholder whenever possible.
+- Risks / Edge Cases: Prechecking image URLs adds small client-side latency for gallery initialization.
+- Impacted Modules / Files: frontend `SmartImage`, homepage deal carousel, product detail gallery, marketplace data.
+- Follow-up Actions: Move product image arrays to backend model in later phase to avoid hardcoded frontend image catalogs.
+- Supersedes: N/A

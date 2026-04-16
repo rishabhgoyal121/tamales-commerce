@@ -28,6 +28,7 @@ export function HorizontalProductCarousel({
             <div className="relative overflow-hidden rounded-md bg-white">
               <SmartImage
                 src={product.imageUrl}
+                sources={product.imageUrls}
                 alt={product.title}
                 loading="lazy"
                 decoding="async"
