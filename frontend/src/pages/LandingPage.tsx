@@ -105,6 +105,10 @@ export function LandingPage() {
           <CardContent className="pt-4">
             <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
               <Input
+                id="landing-search-input"
+                name="search"
+                type="search"
+                autoComplete="off"
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
                 placeholder="Search products, categories, and brands"

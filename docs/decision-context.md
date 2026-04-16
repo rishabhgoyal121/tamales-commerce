@@ -471,3 +471,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend `SmartImage` component.
 - Follow-up Actions: If image metadata moves server-side, include explicit primary/secondary ordering guarantees.
 - Supersedes: N/A
+
+## 2026-04-16 | DEC-034 | Explicit Search Field Identifiers for Browser Autofill Compatibility
+- Date: 2026-04-16
+- Decision ID: DEC-034
+- Decision: Add explicit `id` and `name` attributes to top-nav and landing search inputs.
+- Context: Browser diagnostics flagged missing field identifiers, reducing autofill compatibility and form semantics.
+- Options Considered: Keep implicit input fields, explicitly annotate search fields.
+- Chosen Option: Explicit `id` + `name` + `type=search`.
+- Rationale: Improves browser form parsing, accessibility semantics, and diagnostics cleanliness with minimal implementation cost.
+- Risks / Edge Cases: Duplicate IDs if reused elsewhere; IDs selected are page-specific.
+- Impacted Modules / Files: frontend app layout search form, landing page search form.
+- Follow-up Actions: Ensure all future form controls include stable `id`/`name` pairs.
+- Supersedes: N/A

@@ -97,6 +97,10 @@ export function AppLayout() {
           </Link>
           <form onSubmit={handleTopSearch} className="hidden flex-1 md:flex md:items-center md:gap-2">
             <Input
+              id="top-search-input"
+              name="search"
+              type="search"
+              autoComplete="off"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
               placeholder="Search products, brands, and categories"
