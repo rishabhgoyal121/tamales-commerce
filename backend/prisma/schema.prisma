@@ -59,7 +59,6 @@ model Product {
   description String
   priceCents  Int
   isActive    Boolean     @default(true)
-  isNsfw      Boolean     @default(false)
   categoryId  String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

@@ -52,41 +52,6 @@ const REVIEW_SORT_TO_ORDER_BY: Record<
 }
 
 type RatingBreakdown = Record<'1' | '2' | '3' | '4' | '5', number>
-const NSFW_KEYWORDS = [
-  'adult',
-  'nsfw',
-  'xxx',
-  'porn',
-  'sex',
-  'nude',
-  'lingerie',
-  'erotic',
-]
-
-function nsfwKeywordPredicates(field: 'title' | 'description') {
-  return NSFW_KEYWORDS.map((term) => ({
-    [field]: {
-      contains: term,
-      mode: 'insensitive' as const,
-    },
-  }))
-}
-
-function getPublicVisibilityWhere(includeNsfw: boolean) {
-  if (includeNsfw) {
-    return {}
-  }
-
-  return {
-    NOT: {
-      OR: [
-        { isNsfw: true },
-        ...nsfwKeywordPredicates('title'),
-        ...nsfwKeywordPredicates('description'),
-      ],
-    },
-  }
-}
 
 function buildRatingSummary(ratings: number[]) {
   const breakdown: RatingBreakdown = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 }
@@ -108,7 +73,6 @@ function buildRatingSummary(ratings: number[]) {
 export async function listProducts(query: ProductListQuery): Promise<ProductListResult> {
   const where = {
     isActive: true,
-    ...getPublicVisibilityWhere(query.includeNsfw),
     ...(query.q
       ? {
           title: {
@@ -143,7 +107,6 @@ export async function listProducts(query: ProductListQuery): Promise<ProductList
         slug: true,
         priceCents: true,
         categoryId: true,
-        isNsfw: true,
         createdAt: true,
         reviews: {
           select: { rating: true },
@@ -164,7 +127,6 @@ export async function listProducts(query: ProductListQuery): Promise<ProductList
         slug: product.slug,
         priceCents: product.priceCents,
         categoryId: product.categoryId,
-        isNsfw: product.isNsfw,
         ratingAverage: summary.ratingAverage,
         ratingCount: summary.ratingCount,
         createdAt: product.createdAt,
@@ -186,7 +148,6 @@ function mapProductDetail(product: {
   description: string
   priceCents: number
   categoryId: string
-  isNsfw: boolean
   category: { name: string }
   inventory: { quantity: number } | null
   reviews: Array<{ rating: number }>
@@ -206,7 +167,6 @@ function mapProductDetail(product: {
       categoryId: product.categoryId,
       categoryName: product.category.name,
       inventoryQty: product.inventory?.quantity ?? 0,
-      isNsfw: product.isNsfw,
       ratingAverage: summary.ratingAverage,
       ratingCount: summary.ratingCount,
       ratingBreakdown: summary.ratingBreakdown,
@@ -216,15 +176,11 @@ function mapProductDetail(product: {
   }
 }
 
-export async function getPublicProductDetailById(
-  productId: string,
-  includeNsfw: boolean,
-): Promise<ProductDetailResult | null> {
+export async function getPublicProductDetailById(productId: string): Promise<ProductDetailResult | null> {
   const product = await prisma.product.findFirst({
     where: {
       id: productId,
       isActive: true,
-      ...getPublicVisibilityWhere(includeNsfw),
     },
     select: {
       id: true,
@@ -233,7 +189,6 @@ export async function getPublicProductDetailById(
       description: true,
       priceCents: true,
       categoryId: true,
-      isNsfw: true,
       category: {
         select: {
           name: true,
@@ -261,15 +216,11 @@ export async function getPublicProductDetailById(
   return mapProductDetail(product)
 }
 
-export async function getPublicProductDetailBySlug(
-  slug: string,
-  includeNsfw: boolean,
-): Promise<ProductDetailResult | null> {
+export async function getPublicProductDetailBySlug(slug: string): Promise<ProductDetailResult | null> {
   const product = await prisma.product.findFirst({
     where: {
       slug,
       isActive: true,
-      ...getPublicVisibilityWhere(includeNsfw),
     },
     select: {
       id: true,
@@ -278,7 +229,6 @@ export async function getPublicProductDetailBySlug(
       description: true,
       priceCents: true,
       categoryId: true,
-      isNsfw: true,
       category: {
         select: {
           name: true,
@@ -446,7 +396,6 @@ export async function listAdminProducts(query: AdminProductListQuery): Promise<A
         description: true,
         priceCents: true,
         isActive: true,
-        isNsfw: true,
         categoryId: true,
         category: {
           select: {
@@ -473,7 +422,6 @@ export async function listAdminProducts(query: AdminProductListQuery): Promise<A
       description: product.description,
       priceCents: product.priceCents,
       isActive: product.isActive,
-      isNsfw: product.isNsfw,
       categoryId: product.categoryId,
       categoryName: product.category.name,
       inventoryQty: product.inventory?.quantity ?? 0,
@@ -517,7 +465,6 @@ export async function getProductById(productId: string) {
       description: true,
       priceCents: true,
       isActive: true,
-      isNsfw: true,
       categoryId: true,
       category: {
         select: {
@@ -549,7 +496,6 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       priceCents: input.priceCents,
       categoryId: input.categoryId,
       isActive: input.isActive,
-      isNsfw: input.isNsfw,
       inventory: {
         create: {
           quantity: input.inventoryQty,
@@ -563,7 +509,6 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       description: true,
       priceCents: true,
       isActive: true,
-      isNsfw: true,
       categoryId: true,
       category: {
         select: {
@@ -586,7 +531,6 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       description: created.description,
       priceCents: created.priceCents,
       isActive: created.isActive,
-      isNsfw: created.isNsfw,
       categoryId: created.categoryId,
       categoryName: created.category.name,
       createdAt: created.createdAt,
@@ -607,7 +551,6 @@ export async function updateAdminProduct(productId: string, input: UpdateAdminPr
       description: true,
       priceCents: true,
       isActive: true,
-      isNsfw: true,
       categoryId: true,
       category: {
         select: {
@@ -630,7 +573,6 @@ export async function updateAdminProduct(productId: string, input: UpdateAdminPr
       description: updated.description,
       priceCents: updated.priceCents,
       isActive: updated.isActive,
-      isNsfw: updated.isNsfw,
       categoryId: updated.categoryId,
       categoryName: updated.category.name,
       createdAt: updated.createdAt,

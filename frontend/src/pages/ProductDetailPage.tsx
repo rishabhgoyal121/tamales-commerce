@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
-import { useNsfwPreference } from '@/hooks/useNsfwPreference'
 import { toStatusMessage } from '@/lib/api-error'
 import {
   addCartItem,
@@ -105,7 +104,6 @@ export function ProductDetailPage() {
   const navigate = useNavigate()
   const { productId, slug } = useParams<{ productId: string; slug: string }>()
   const { user, isAuthenticated, accessToken, setStatusMessage } = useAuthSession()
-  const { includeNsfw } = useNsfwPreference()
   const [quantity, setQuantity] = useState(1)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
@@ -115,12 +113,12 @@ export function ProductDetailPage() {
   const [reviewComment, setReviewComment] = useState('')
 
   const detailQuery = useQuery({
-    queryKey: ['product-detail', { productId, slug, includeNsfw }],
+    queryKey: ['product-detail', { productId, slug }],
     queryFn: () => {
       if (slug) {
-        return getProductDetailBySlug(slug, { includeNsfw })
+        return getProductDetailBySlug(slug)
       }
-      return getProductDetail(productId ?? '', { includeNsfw })
+      return getProductDetail(productId ?? '')
     },
     enabled: !!productId || !!slug,
   })
@@ -140,7 +138,6 @@ export function ProductDetailPage() {
         page: 1,
         limit: 20,
         sort: 'createdAt_desc',
-        includeNsfw,
       }),
     enabled: !!product?.id,
   })
@@ -168,7 +165,7 @@ export function ProductDetailPage() {
       upsertProductReview(accessToken, payload.productId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product-reviews', product?.id] })
-      queryClient.invalidateQueries({ queryKey: ['product-detail'] })
+      queryClient.invalidateQueries({ queryKey: ['product-detail', { productId, slug }] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
       setStatusMessage('Review submitted successfully.')
       notifyInfo('Review submitted successfully.')

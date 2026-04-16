@@ -2,7 +2,6 @@ import { useMemo, useState, type FormEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthSession } from '@/hooks/useAuthSession'
-import { useNsfwPreference } from '@/hooks/useNsfwPreference'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -39,7 +38,6 @@ export function AppLayout() {
   const location = useLocation()
   const [searchValue, setSearchValue] = useState('')
   const [mobilePaneOpen, setMobilePaneOpen] = useState(false)
-  const { includeNsfw, setIncludeNsfw } = useNsfwPreference()
   const {
     isAuthenticated,
     user,
@@ -110,14 +108,6 @@ export function AppLayout() {
               Search
             </Button>
           </form>
-          <label className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 sm:flex">
-            <input
-              type="checkbox"
-              checked={includeNsfw}
-              onChange={(event) => setIncludeNsfw(event.target.checked)}
-            />
-            Show 18+
-          </label>
           <div className="ml-auto flex items-center gap-2">
             {isAuthenticated ? (
               <>
@@ -332,14 +322,6 @@ export function AppLayout() {
             </form>
 
             <div className="mt-5 space-y-1">
-              <label className="mb-3 flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm font-medium text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={includeNsfw}
-                  onChange={(event) => setIncludeNsfw(event.target.checked)}
-                />
-                Show 18+ content
-              </label>
               {primaryLinks.map((link) => (
                 <NavLink
                   key={link.to}

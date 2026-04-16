@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label'
 import { SmartImage } from '@/components/common/SmartImage'
 import { Seo } from '@/components/seo/Seo'
 import { useAuthSession } from '@/hooks/useAuthSession'
-import { useNsfwPreference } from '@/hooks/useNsfwPreference'
 import { toStatusMessage } from '@/lib/api-error'
 import { addCartItem, getCart, listProducts, type ProductListSort } from '@/lib/auth-api'
 import { formatCurrency } from '@/lib/currency'
@@ -52,7 +51,6 @@ export function ProductsPage() {
   const initialQuery = searchParams.get('q') ?? ''
 
   const { accessToken, isAuthenticated, setStatusMessage } = useAuthSession()
-  const { includeNsfw } = useNsfwPreference()
 
   const [queryInput, setQueryInput] = useState(initialQuery)
   const [minPriceInput, setMinPriceInput] = useState('')
@@ -73,13 +71,12 @@ export function ProductsPage() {
   }, [searchParams])
 
   const productsQuery = useQuery({
-    queryKey: ['products', { query, minPrice, maxPrice, includeNsfw, sort, page, limit }],
+    queryKey: ['products', { query, minPrice, maxPrice, sort, page, limit }],
     queryFn: () =>
       listProducts({
         q: query || undefined,
         minPrice,
         maxPrice,
-        includeNsfw,
         sort,
         page,
         limit,

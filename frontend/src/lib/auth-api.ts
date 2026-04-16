@@ -47,7 +47,6 @@ export type ProductListItem = {
   slug: string
   priceCents: number
   categoryId: string
-  isNsfw: boolean
   ratingAverage: number
   ratingCount: number
   createdAt: string
@@ -73,7 +72,6 @@ export type ProductDetailResponse = {
     categoryId: string
     categoryName: string
     inventoryQty: number
-    isNsfw: boolean
     ratingAverage: number
     ratingCount: number
     ratingBreakdown: Record<'1' | '2' | '3' | '4' | '5', number>
@@ -119,7 +117,6 @@ export type AdminProductListItem = {
   description: string
   priceCents: number
   isActive: boolean
-  isNsfw: boolean
   categoryId: string
   categoryName: string
   inventoryQty: number
@@ -497,7 +494,6 @@ export async function listProducts(params: {
   q?: string
   minPrice?: number
   maxPrice?: number
-  includeNsfw?: boolean
   page?: number
   limit?: number
   sort?: ProductListSort
@@ -512,9 +508,6 @@ export async function listProducts(params: {
   }
   if (params.maxPrice !== undefined) {
     query.set('maxPrice', String(params.maxPrice))
-  }
-  if (params.includeNsfw !== undefined) {
-    query.set('includeNsfw', String(params.includeNsfw))
   }
   if (params.page !== undefined) {
     query.set('page', String(params.page))
@@ -532,27 +525,15 @@ export async function listProducts(params: {
   })
 }
 
-export async function getProductDetail(productId: string, options?: { includeNsfw?: boolean }) {
-  const query = new URLSearchParams()
-  if (options?.includeNsfw !== undefined) {
-    query.set('includeNsfw', String(options.includeNsfw))
-  }
-  const querySuffix = query.toString()
-
-  return request<ProductDetailResponse>(`/products/${productId}${querySuffix ? `?${querySuffix}` : ''}`, {
+export async function getProductDetail(productId: string) {
+  return request<ProductDetailResponse>(`/products/${productId}`, {
     method: 'GET',
   })
 }
 
-export async function getProductDetailBySlug(slug: string, options?: { includeNsfw?: boolean }) {
-  const query = new URLSearchParams()
-  if (options?.includeNsfw !== undefined) {
-    query.set('includeNsfw', String(options.includeNsfw))
-  }
-  const querySuffix = query.toString()
-
+export async function getProductDetailBySlug(slug: string) {
   try {
-    return await request<ProductDetailResponse>(`/products/slug/${slug}${querySuffix ? `?${querySuffix}` : ''}`, {
+    return await request<ProductDetailResponse>(`/products/slug/${slug}`, {
       method: 'GET',
     })
   } catch (error) {
@@ -561,13 +542,12 @@ export async function getProductDetailBySlug(slug: string, options?: { includeNs
     if (isApiClientError(error) && error.status === 404) {
       const list = await listProducts({
         q: slug.replaceAll('-', ' '),
-        includeNsfw: options?.includeNsfw,
         limit: 48,
         sort: 'createdAt_desc',
       })
       const match = list.data.find((item) => item.slug === slug)
       if (match) {
-        return getProductDetail(match.id, options)
+        return getProductDetail(match.id)
       }
     }
 
@@ -578,16 +558,12 @@ export async function getProductDetailBySlug(slug: string, options?: { includeNs
 export async function listProductReviews(
   productId: string,
   params?: {
-    includeNsfw?: boolean
     page?: number
     limit?: number
     sort?: ProductReviewListSort
   },
 ) {
   const query = new URLSearchParams()
-  if (params?.includeNsfw !== undefined) {
-    query.set('includeNsfw', String(params.includeNsfw))
-  }
   if (params?.page !== undefined) {
     query.set('page', String(params.page))
   }
@@ -802,7 +778,6 @@ export async function createAdminProduct(
     priceCents: number
     categoryId: string
     isActive: boolean
-    isNsfw: boolean
     inventoryQty: number
   },
 ) {
@@ -824,7 +799,6 @@ export async function updateAdminProduct(
     priceCents?: number
     categoryId?: string
     isActive?: boolean
-    isNsfw?: boolean
   },
 ) {
   return request<{ data: AdminProductListItem }>(`/admin/products/${payload.productId}`, {
@@ -838,7 +812,6 @@ export async function updateAdminProduct(
       priceCents: payload.priceCents,
       categoryId: payload.categoryId,
       isActive: payload.isActive,
-      isNsfw: payload.isNsfw,
     }),
   })
 }
