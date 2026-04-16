@@ -523,3 +523,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend products listing page card rendering.
 - Follow-up Actions: Optionally add subtle neutral icon treatment if analytics suggests rating discoverability drop.
 - Supersedes: N/A
+
+## 2026-04-16 | DEC-038 | NSFW Visibility Gate with User-Controlled Opt-In
+- Date: 2026-04-16
+- Decision ID: DEC-038
+- Decision: Hide NSFW products by default and expose an explicit top-bar toggle (`Show 18+`) to opt in.
+- Context: Catalog included some adult-oriented product names/content, and baseline experience needed safe default visibility.
+- Options Considered: No filtering, backend-only hard block, user-controlled opt-in with backend query gating.
+- Chosen Option: User-controlled opt-in with backend query gating + frontend preference persistence.
+- Rationale: Preserves safety by default while still allowing explicit adult content access when user opts in.
+- Risks / Edge Cases: Keyword heuristics can over-block or under-block; manual admin flagging discipline is required.
+- Impacted Modules / Files: Prisma product schema/migration, products core/service/api, admin catalog forms/actions, frontend product/landing/detail flows, shared layout preference toggle.
+- Follow-up Actions: Add age-confirmation modal and stronger content policy taxonomy in a later phase.
+- Supersedes: N/A

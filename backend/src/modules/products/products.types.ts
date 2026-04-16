@@ -18,6 +18,7 @@ export type ProductListQuery = {
   categoryId?: string
   minPrice?: number
   maxPrice?: number
+  includeNsfw: boolean
   page: number
   limit: number
   sort: ProductListSort
@@ -29,6 +30,7 @@ export type ProductListItem = {
   slug: string
   priceCents: number
   categoryId: string
+  isNsfw: boolean
   ratingAverage: number
   ratingCount: number
   createdAt: Date
@@ -54,6 +56,7 @@ export type ProductDetailResult = {
     categoryId: string
     categoryName: string
     inventoryQty: number
+    isNsfw: boolean
     ratingAverage: number
     ratingCount: number
     ratingBreakdown: Record<'1' | '2' | '3' | '4' | '5', number>
@@ -65,6 +68,7 @@ export type ProductDetailResult = {
 export type ProductReviewListSort = 'createdAt_desc' | 'rating_desc' | 'rating_asc'
 
 export type ProductReviewListQuery = {
+  includeNsfw: boolean
   page: number
   limit: number
   sort: ProductReviewListSort
@@ -108,6 +112,7 @@ export type AdminProductListItem = {
   description: string
   priceCents: number
   isActive: boolean
+  isNsfw: boolean
   categoryId: string
   categoryName: string
   inventoryQty: number
@@ -138,6 +143,7 @@ export type CreateAdminProductInput = {
   priceCents: number
   categoryId: string
   isActive: boolean
+  isNsfw: boolean
   inventoryQty: number
 }
 
@@ -147,6 +153,7 @@ export type UpdateAdminProductInput = {
   priceCents?: number
   categoryId?: string
   isActive?: boolean
+  isNsfw?: boolean
 }
 
 export type UpdateAdminProductInventoryInput = {

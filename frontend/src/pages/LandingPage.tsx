@@ -9,22 +9,39 @@ import { HeroCarousel } from '@/components/marketplace/HeroCarousel'
 import { HorizontalProductCarousel } from '@/components/marketplace/HorizontalProductCarousel'
 import { OfferTicker } from '@/components/marketplace/OfferTicker'
 import { useAuthSession } from '@/hooks/useAuthSession'
+import { useNsfwPreference } from '@/hooks/useNsfwPreference'
 import { addCartItem, getProductDetailBySlug, listProducts } from '@/lib/auth-api'
 import { categoryDeals, featuredDeals, heroSlides, quickOffers } from '@/lib/marketplace-data'
+import { isLikelyNsfwText } from '@/lib/nsfw'
 import { notifyError, notifyInfo, notifySuccessWithAction } from '@/lib/notify'
 
 export function LandingPage() {
   const navigate = useNavigate()
   const { isAuthenticated, accessToken, setStatusMessage } = useAuthSession()
+  const { includeNsfw } = useNsfwPreference()
   const [searchText, setSearchText] = useState('')
   const [quickAddPendingId, setQuickAddPendingId] = useState<string | null>(null)
+  const filteredFeaturedDeals = useMemo(
+    () =>
+      includeNsfw
+        ? featuredDeals
+        : featuredDeals.filter((deal) => !isLikelyNsfwText(deal.title)),
+    [includeNsfw],
+  )
+  const filteredCategoryDeals = useMemo(
+    () =>
+      includeNsfw
+        ? categoryDeals
+        : categoryDeals.filter((deal) => !isLikelyNsfwText(deal.title)),
+    [includeNsfw],
+  )
 
   const dealSections = useMemo(
     () => [
-      { title: 'Today\'s Best Offers', products: featuredDeals.slice(0, 4) },
-      { title: 'Popular in Electronics & Fitness', products: featuredDeals.slice(2, 6) },
+      { title: 'Today\'s Best Offers', products: filteredFeaturedDeals.slice(0, 4) },
+      { title: 'Popular in Electronics & Fitness', products: filteredFeaturedDeals.slice(2, 6) },
     ],
-    [],
+    [filteredFeaturedDeals],
   )
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -36,11 +53,16 @@ export function LandingPage() {
   const quickAddMutation = useMutation({
     mutationFn: async (payload: { query?: string; slug?: string }) => {
       if (payload.slug) {
-        const detail = await getProductDetailBySlug(payload.slug)
+        const detail = await getProductDetailBySlug(payload.slug, { includeNsfw })
         return addCartItem(accessToken, { productId: detail.data.id, quantity: 1 })
       }
 
-      const catalog = await listProducts({ q: payload.query, limit: 1, sort: 'createdAt_desc' })
+      const catalog = await listProducts({
+        q: payload.query,
+        includeNsfw,
+        limit: 1,
+        sort: 'createdAt_desc',
+      })
       const first = catalog.data[0]
       if (!first) {
         throw new Error('No matching product found for quick add')
@@ -133,7 +155,7 @@ export function LandingPage() {
 
         <CategoryDealsGrid
           title="Shop By Category"
-          items={categoryDeals}
+          items={filteredCategoryDeals}
           quickAddPendingId={quickAddPendingId}
           onQuickAdd={(item) => quickAddByHref(item.id, item.href)}
         />

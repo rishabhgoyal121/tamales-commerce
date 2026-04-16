@@ -35,6 +35,7 @@ type NewProductFormState = {
   categoryId: string
   inventoryQty: string
   isActive: boolean
+  isNsfw: boolean
 }
 
 const EMPTY_FORM: NewProductFormState = {
@@ -45,6 +46,7 @@ const EMPTY_FORM: NewProductFormState = {
   categoryId: '',
   inventoryQty: '0',
   isActive: true,
+  isNsfw: false,
 }
 
 export function AdminCatalogPage() {
@@ -92,6 +94,7 @@ export function AdminCatalogPage() {
       categoryId: string
       inventoryQty: number
       isActive: boolean
+      isNsfw: boolean
     }) => createAdminProduct(accessToken, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] })
@@ -123,7 +126,7 @@ export function AdminCatalogPage() {
   })
 
   const updateProductMutation = useMutation({
-    mutationFn: (payload: { productId: string; isActive: boolean }) =>
+    mutationFn: (payload: { productId: string; isActive?: boolean; isNsfw?: boolean }) =>
       updateAdminProduct(accessToken, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] })
@@ -174,6 +177,7 @@ export function AdminCatalogPage() {
       categoryId: newProduct.categoryId,
       inventoryQty: parsedInventory,
       isActive: newProduct.isActive,
+      isNsfw: newProduct.isNsfw,
     })
   }
 
@@ -274,6 +278,17 @@ export function AdminCatalogPage() {
                   }
                 />
                 <Label htmlFor="new-active">Active product</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="new-nsfw"
+                  type="checkbox"
+                  checked={newProduct.isNsfw}
+                  onChange={(event) =>
+                    setNewProduct((prev) => ({ ...prev, isNsfw: event.target.checked }))
+                  }
+                />
+                <Label htmlFor="new-nsfw">Mark as 18+</Label>
               </div>
             </div>
             <div className="mt-3">
@@ -379,6 +394,7 @@ export function AdminCatalogPage() {
                       <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Price</th>
                       <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Inventory</th>
                       <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Status</th>
+                      <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Safety</th>
                       <th className="border-b border-slate-200/80 px-3 py-2 text-left font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -440,19 +456,45 @@ export function AdminCatalogPage() {
                           </span>
                         </td>
                         <td className="px-3 py-2">
-                          <Button
-                            size="sm"
-                            variant={product.isActive ? 'outline' : 'default'}
-                            disabled={updateProductMutation.isPending}
-                            onClick={() =>
-                              updateProductMutation.mutate({
-                                productId: product.id,
-                                isActive: !product.isActive,
-                              })
-                            }
+                          <span
+                            className={`rounded-md px-2 py-1 text-xs font-medium ${
+                              product.isNsfw
+                                ? 'bg-rose-100 text-rose-700'
+                                : 'bg-emerald-100 text-emerald-700'
+                            }`}
                           >
-                            {product.isActive ? 'Deactivate' : 'Activate'}
-                          </Button>
+                            {product.isNsfw ? '18+' : 'General'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant={product.isActive ? 'outline' : 'default'}
+                              disabled={updateProductMutation.isPending}
+                              onClick={() =>
+                                updateProductMutation.mutate({
+                                  productId: product.id,
+                                  isActive: !product.isActive,
+                                })
+                              }
+                            >
+                              {product.isActive ? 'Deactivate' : 'Activate'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={updateProductMutation.isPending}
+                              onClick={() =>
+                                updateProductMutation.mutate({
+                                  productId: product.id,
+                                  isNsfw: !product.isNsfw,
+                                })
+                              }
+                            >
+                              {product.isNsfw ? 'Mark General' : 'Mark 18+'}
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}

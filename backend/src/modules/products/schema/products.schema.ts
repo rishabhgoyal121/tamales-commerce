@@ -12,6 +12,7 @@ export const createAdminProductSchema = z.object({
   priceCents: z.number().int().min(0).max(10_000_000),
   categoryId: z.string().trim().min(1),
   isActive: z.boolean().default(true),
+  isNsfw: z.boolean().default(false),
   inventoryQty: z.number().int().min(0).max(1_000_000),
 })
 
@@ -22,6 +23,7 @@ export const updateAdminProductSchema = z
     priceCents: z.number().int().min(0).max(10_000_000).optional(),
     categoryId: z.string().trim().min(1).optional(),
     isActive: z.boolean().optional(),
+    isNsfw: z.boolean().optional(),
   })
   .refine(
     (value) =>
@@ -29,7 +31,8 @@ export const updateAdminProductSchema = z
       value.description !== undefined ||
       value.priceCents !== undefined ||
       value.categoryId !== undefined ||
-      value.isActive !== undefined,
+      value.isActive !== undefined ||
+      value.isNsfw !== undefined,
     { message: 'At least one field is required for update' },
   )
 

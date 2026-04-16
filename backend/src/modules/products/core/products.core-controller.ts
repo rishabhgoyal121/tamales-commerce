@@ -32,13 +32,15 @@ const ALLOWED_QUERY_KEYS = new Set([
   'categoryId',
   'minPrice',
   'maxPrice',
+  'includeNsfw',
   'page',
   'limit',
   'sort',
 ])
 
 const ALLOWED_ADMIN_QUERY_KEYS = new Set(['q', 'categoryId', 'isActive', 'page', 'limit', 'sort'])
-const ALLOWED_REVIEW_QUERY_KEYS = new Set(['page', 'limit', 'sort'])
+const ALLOWED_REVIEW_QUERY_KEYS = new Set(['includeNsfw', 'page', 'limit', 'sort'])
+const ALLOWED_DETAIL_QUERY_KEYS = new Set(['includeNsfw'])
 
 const ALLOWED_SORTS: readonly ProductListSort[] = [
   'createdAt_desc',
@@ -113,6 +115,7 @@ export function normalizeProductListQuery(rawQuery: Record<string, unknown>): Pr
   const categoryId = rawQuery.categoryId ? String(rawQuery.categoryId) : undefined
   const minPrice = parseOptionalInt(rawQuery.minPrice, 'minPrice')
   const maxPrice = parseOptionalInt(rawQuery.maxPrice, 'maxPrice')
+  const includeNsfw = parseOptionalBoolean(rawQuery.includeNsfw, 'includeNsfw') ?? false
 
   if (minPrice !== undefined && minPrice < 0) {
     throw new AppError('VALIDATION_ERROR', 'minPrice cannot be negative', 422)
@@ -152,6 +155,7 @@ export function normalizeProductListQuery(rawQuery: Record<string, unknown>): Pr
     categoryId,
     minPrice,
     maxPrice,
+    includeNsfw,
     page: parsedPage,
     limit,
     sort: sort as ProductListSort,
@@ -206,12 +210,31 @@ export async function listProductsCoreController(rawQuery: Record<string, unknow
   return listProducts(query)
 }
 
-export async function getProductDetailCoreController(productId: string) {
+function normalizeProductDetailQuery(rawQuery: Record<string, unknown>) {
+  const unknownKeys = Object.keys(rawQuery).filter((key) => !ALLOWED_DETAIL_QUERY_KEYS.has(key))
+  if (unknownKeys.length > 0) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      `Unsupported query parameters: ${unknownKeys.join(', ')}`,
+      422,
+    )
+  }
+
+  return {
+    includeNsfw: parseOptionalBoolean(rawQuery.includeNsfw, 'includeNsfw') ?? false,
+  }
+}
+
+export async function getProductDetailCoreController(
+  productId: string,
+  rawQuery: Record<string, unknown>,
+) {
   if (!productId.trim()) {
     throw new AppError('VALIDATION_ERROR', 'productId path parameter is required', 422)
   }
 
-  const product = await getPublicProductDetailById(productId)
+  const query = normalizeProductDetailQuery(rawQuery)
+  const product = await getPublicProductDetailById(productId, query.includeNsfw)
   if (!product) {
     throw new AppError('NOT_FOUND', 'Product not found', 404)
   }
@@ -219,12 +242,16 @@ export async function getProductDetailCoreController(productId: string) {
   return product
 }
 
-export async function getProductDetailBySlugCoreController(slug: string) {
+export async function getProductDetailBySlugCoreController(
+  slug: string,
+  rawQuery: Record<string, unknown>,
+) {
   if (!slug.trim()) {
     throw new AppError('VALIDATION_ERROR', 'slug path parameter is required', 422)
   }
 
-  const product = await getPublicProductDetailBySlug(slug)
+  const query = normalizeProductDetailQuery(rawQuery)
+  const product = await getPublicProductDetailBySlug(slug, query.includeNsfw)
   if (!product) {
     throw new AppError('NOT_FOUND', 'Product not found', 404)
   }
@@ -265,6 +292,7 @@ export function normalizeProductReviewListQuery(
   }
 
   return {
+    includeNsfw: parseOptionalBoolean(rawQuery.includeNsfw, 'includeNsfw') ?? false,
     page: parsedPage,
     limit,
     sort: sort as ProductReviewListSort,
@@ -276,11 +304,11 @@ export async function listProductReviewsCoreController(
   rawQuery: Record<string, unknown>,
 ) {
   const product = await getProductById(productId)
-  if (!product || !product.isActive) {
+  const query = normalizeProductReviewListQuery(rawQuery)
+  if (!product || !product.isActive || (product.isNsfw && !query.includeNsfw)) {
     throw new AppError('NOT_FOUND', 'Product not found', 404)
   }
 
-  const query = normalizeProductReviewListQuery(rawQuery)
   return listProductReviews(productId, query)
 }
 
