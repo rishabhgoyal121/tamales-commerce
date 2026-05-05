@@ -536,3 +536,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend route loader, customer/admin page loading states, cart table loading row, shared loader component.
 - Follow-up Actions: Track session drop-off around load-heavy routes and iterate fact pool/copy if needed.
 - Supersedes: N/A
+
+## 2026-05-05 | DEC-039 | Align Favicon With Visible Brand Logo Mark
+- Date: 2026-05-05
+- Decision ID: DEC-039
+- Decision: Introduce a dedicated `logo-mark.svg` brand icon and use the same visual asset for `favicon.svg`.
+- Context: Browser tab icon should visually match the in-app website logo for stronger brand consistency.
+- Options Considered: Keep default favicon, use text-only favicon, use shared logo mark for both header branding and favicon.
+- Chosen Option: Shared logo mark for both header and favicon.
+- Rationale: Ensures one source of visual truth and avoids brand mismatch between tab icon and site identity.
+- Risks / Edge Cases: Very small favicon sizes may reduce detail readability; kept icon geometry simple for clarity.
+- Impacted Modules / Files: frontend public favicon/logo assets, app header branding.
+- Follow-up Actions: Consider adding pinned-tab and mobile-touch icons derived from the same mark.
+- Supersedes: N/A

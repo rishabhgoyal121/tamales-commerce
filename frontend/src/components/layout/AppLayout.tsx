@@ -90,8 +90,17 @@ export function AppLayout() {
             ≡
           </button>
           <Link to="/" className="shrink-0">
-            <p className="text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase">Tamales</p>
-            <p className="text-lg font-semibold leading-none text-slate-900">Marketplace</p>
+            <div className="flex items-center gap-2">
+              <img
+                src="/logo-mark.svg"
+                alt="Tamales Commerce logo"
+                className="h-10 w-10 rounded-xl border border-slate-200/80 bg-white p-0.5 shadow-sm"
+              />
+              <div>
+                <p className="text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase">Tamales</p>
+                <p className="text-lg font-semibold leading-none text-slate-900">Marketplace</p>
+              </div>
+            </div>
           </Link>
           <form onSubmit={handleTopSearch} className="hidden flex-1 md:flex md:items-center md:gap-2">
             <Input
