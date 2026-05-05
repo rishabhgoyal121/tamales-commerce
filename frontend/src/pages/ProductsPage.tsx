@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { SmartImage } from '@/components/common/SmartImage'
+import { EngagingLoader } from '@/components/common/EngagingLoader'
 import { Seo } from '@/components/seo/Seo'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
@@ -287,7 +288,11 @@ export function ProductsPage() {
 
           <section className="mt-4">
             {productsQuery.isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading products...</p>
+              <EngagingLoader
+                compact
+                title="Loading products"
+                subtitle="Scanning catalog and applying your filters."
+              />
             ) : productsQuery.isError ? (
               <p className="text-sm text-destructive">
                 {toStatusMessage(productsQuery.error, 'Failed to load products.')}

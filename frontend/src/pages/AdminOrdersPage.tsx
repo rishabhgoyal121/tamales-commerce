@@ -5,6 +5,7 @@ import { Seo } from '@/components/seo/Seo'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { EngagingLoader } from '@/components/common/EngagingLoader'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
 import { formatCurrency } from '@/lib/currency'
@@ -235,7 +236,13 @@ export function AdminOrdersPage() {
         </section>
 
         <section className="mt-4">
-          {adminOrdersQuery.isLoading ? <p className="text-sm text-muted-foreground">Loading admin orders...</p> : null}
+          {adminOrdersQuery.isLoading ? (
+            <EngagingLoader
+              compact
+              title="Loading admin orders"
+              subtitle="Collecting orders and filter metadata."
+            />
+          ) : null}
 
           {adminOrdersQuery.isError ? (
             <p className="text-sm text-destructive">
@@ -347,7 +354,12 @@ export function AdminOrdersPage() {
             <p className="text-sm font-medium">Status History for {selectedOrderId}</p>
 
             {historyQuery.isLoading ? (
-              <p className="mt-2 text-sm text-muted-foreground">Loading status history...</p>
+              <EngagingLoader
+                compact
+                className="mt-2"
+                title="Loading status history"
+                subtitle="Fetching transition notes and timestamps."
+              />
             ) : historyQuery.isError ? (
               <p className="mt-2 text-sm text-destructive">
                 {toStatusMessage(historyQuery.error, 'Failed to load status history')}

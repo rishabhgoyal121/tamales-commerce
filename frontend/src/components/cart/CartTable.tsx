@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/currency'
 import type { CartItem } from '@/lib/auth-api'
 import { QuantityEditor } from '@/components/cart/QuantityEditor'
+import { EngagingLoader } from '@/components/common/EngagingLoader'
 
 type CartTableProps = {
   items: CartItem[]
@@ -103,8 +104,12 @@ export function CartTable({
         <tbody>
           {loading ? (
             <tr>
-              <td className="px-3 py-4 text-slate-500" colSpan={5}>
-                Loading cart...
+              <td className="px-3 py-3 text-slate-500" colSpan={5}>
+                <EngagingLoader
+                  compact
+                  title="Loading cart"
+                  subtitle="Syncing your selected items and quantities."
+                />
               </td>
             </tr>
           ) : table.getRowModel().rows.length === 0 ? (

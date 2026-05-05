@@ -523,3 +523,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend products listing page card rendering.
 - Follow-up Actions: Optionally add subtle neutral icon treatment if analytics suggests rating discoverability drop.
 - Supersedes: N/A
+
+## 2026-05-05 | DEC-038 | Local Fun-Fact Loader System for Perceived Performance
+- Date: 2026-05-05
+- Decision ID: DEC-038
+- Decision: Replace plain text/spinner loaders with a reusable engaging loader that rotates local curated facts on each load.
+- Context: Users were spending noticeable time on loading states and risked dropping before content appeared.
+- Options Considered: Keep static text loaders, fetch external facts from internet APIs, use local curated fact rotation.
+- Chosen Option: Local curated fact rotation via shared frontend component.
+- Rationale: Improves perceived performance without adding network dependency or API failure risk.
+- Risks / Edge Cases: Repeated exposure can reduce novelty over time; fact list may need periodic refresh.
+- Impacted Modules / Files: frontend route loader, customer/admin page loading states, cart table loading row, shared loader component.
+- Follow-up Actions: Track session drop-off around load-heavy routes and iterate fact pool/copy if needed.
+- Supersedes: N/A

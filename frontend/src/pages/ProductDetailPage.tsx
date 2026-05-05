@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { EngagingLoader } from '@/components/common/EngagingLoader'
 import { SmartImage } from '@/components/common/SmartImage'
 import { Seo } from '@/components/seo/Seo'
 import { Button } from '@/components/ui/button'
@@ -364,7 +365,11 @@ export function ProductDetailPage() {
           </div>
 
           {detailQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading product details...</p>
+            <EngagingLoader
+              compact
+              title="Loading product details"
+              subtitle="Pulling product data, ratings, and inventory status."
+            />
           ) : detailQuery.isError ? (
             <p className="text-sm text-destructive">
               {toStatusMessage(detailQuery.error, 'Failed to load product detail')}
@@ -558,7 +563,11 @@ export function ProductDetailPage() {
                 </div>
 
                 {reviewsQuery.isLoading ? (
-                  <p className="text-sm text-muted-foreground">Loading reviews...</p>
+                  <EngagingLoader
+                    compact
+                    title="Loading reviews"
+                    subtitle="Collecting latest customer feedback."
+                  />
                 ) : reviewsQuery.isError ? (
                   <p className="text-sm text-destructive">
                     {toStatusMessage(reviewsQuery.error, 'Failed to load reviews')}

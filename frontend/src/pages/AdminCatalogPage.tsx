@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Seo } from '@/components/seo/Seo'
+import { EngagingLoader } from '@/components/common/EngagingLoader'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
 import {
@@ -361,7 +362,11 @@ export function AdminCatalogPage() {
 
           <section className="mt-4">
             {adminProductsQuery.isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading products...</p>
+              <EngagingLoader
+                compact
+                title="Loading products"
+                subtitle="Syncing catalog records for the admin table."
+              />
             ) : adminProductsQuery.isError ? (
               <p className="text-sm text-destructive">
                 {toStatusMessage(adminProductsQuery.error, 'Failed to load admin products')}

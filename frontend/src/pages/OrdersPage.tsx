@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Seo } from '@/components/seo/Seo'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { EngagingLoader } from '@/components/common/EngagingLoader'
 import { Label } from '@/components/ui/label'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
@@ -162,7 +163,13 @@ export function OrdersPage() {
           </section>
 
           <section className="mt-4">
-            {ordersQuery.isLoading ? <p className="text-sm text-muted-foreground">Loading orders...</p> : null}
+            {ordersQuery.isLoading ? (
+              <EngagingLoader
+                compact
+                title="Loading orders"
+                subtitle="Gathering your latest order updates."
+              />
+            ) : null}
 
             {ordersQuery.isError ? (
               <p className="text-sm text-destructive">{toStatusMessage(ordersQuery.error, 'Failed to load orders')}</p>

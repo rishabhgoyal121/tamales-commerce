@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Seo } from '@/components/seo/Seo'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { EngagingLoader } from '@/components/common/EngagingLoader'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import { toStatusMessage } from '@/lib/api-error'
 import { formatCurrency } from '@/lib/currency'
@@ -37,7 +38,11 @@ export function OrderDetailPage() {
           </div>
 
           {orderDetailQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading order detail...</p>
+            <EngagingLoader
+              compact
+              title="Loading order detail"
+              subtitle="Pulling line items, totals, and status timeline."
+            />
           ) : orderDetailQuery.isError ? (
             <p className="text-sm text-destructive">{toStatusMessage(orderDetailQuery.error, 'Failed to load order detail')}</p>
           ) : !detail ? (
