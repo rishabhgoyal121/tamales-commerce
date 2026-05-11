@@ -75,7 +75,8 @@ npm run dev
 
 ## API Docs
 
-- Swagger UI: `http://localhost:4000/docs`
+- Swagger UI (local): `http://localhost:4000/docs`
+- Swagger UI (hosted): `https://tamales-commerce-backend.onrender.com/docs/#/`
 
 ## Deployment
 

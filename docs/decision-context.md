@@ -562,3 +562,29 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: root README.md.
 - Follow-up Actions: Replace screenshot placeholders with real captures after next stable UI pass.
 - Supersedes: N/A
+
+## 2026-05-11 | DEC-041 | Relative OpenAPI Server URL for Portable Hosted Swagger
+- Date: 2026-05-11
+- Decision ID: DEC-041
+- Decision: Replace hardcoded localhost OpenAPI server URL with relative `/api/v1`.
+- Context: Public hosted Swagger docs were showing `localhost:4000`, causing `Try it out` requests to target each viewer's local machine instead of the deployed backend.
+- Options Considered: Keep localhost URL, hardcode production URL, use relative server URL.
+- Chosen Option: Use relative server URL.
+- Rationale: Keeps one spec portable across local/staging/production and makes Swagger execute requests against the current docs host automatically.
+- Risks / Edge Cases: If docs are ever served from a different origin than the API, relative routing would need explicit proxying or environment-specific server definitions.
+- Impacted Modules / Files: backend OpenAPI spec.
+- Follow-up Actions: If multi-environment hosted docs are introduced, evaluate multiple named server entries per environment.
+- Supersedes: N/A
+
+## 2026-05-11 | DEC-042 | README Swagger Endpoint Clarification for Local and Hosted Access
+- Date: 2026-05-11
+- Decision ID: DEC-042
+- Decision: Document both local and hosted Swagger URLs in README using the canonical Render docs link.
+- Context: Contributors and reviewers needed a clear public docs URL while retaining local development guidance.
+- Options Considered: Keep local URL only, replace local with hosted only, show both local and hosted URLs.
+- Chosen Option: Show both local and hosted URLs.
+- Rationale: Reduces ambiguity for different audiences (local dev vs external reviewers) and prevents accidental use of incorrect environment.
+- Risks / Edge Cases: Hosted URL may change if backend domain changes and would require README maintenance.
+- Impacted Modules / Files: root README.md.
+- Follow-up Actions: Revisit README links if infrastructure provider/domain is changed.
+- Supersedes: N/A
