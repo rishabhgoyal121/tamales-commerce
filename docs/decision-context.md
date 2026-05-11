@@ -549,3 +549,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: frontend public favicon/logo assets, app header branding.
 - Follow-up Actions: Consider adding pinned-tab and mobile-touch icons derived from the same mark.
 - Supersedes: N/A
+
+## 2026-05-11 | DEC-040 | Recruiter-Focused README Reframe Without Setup/Deployment Loss
+- Date: 2026-05-11
+- Decision ID: DEC-040
+- Decision: Reframe project README to a recruiter-first structure while preserving existing developer setup and deployment instructions.
+- Context: Profile positioning requires consistent story across repositories, but existing operational instructions were already useful.
+- Options Considered: Keep README as-is, fully rewrite and risk losing operational detail, reframe top sections while retaining practical run/deploy guidance.
+- Chosen Option: Reframe top sections and retain setup/deployment instructions.
+- Rationale: Balances hiring narrative clarity with practical onboarding reliability.
+- Risks / Edge Cases: README can drift from implementation details if features evolve and the summary is not updated.
+- Impacted Modules / Files: root README.md.
+- Follow-up Actions: Replace screenshot placeholders with real captures after next stable UI pass.
+- Supersedes: N/A
