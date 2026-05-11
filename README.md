@@ -43,11 +43,11 @@ This project demonstrates end-to-end ownership across:
 ## Screenshots
 
 <!-- TODO: Replace placeholders with actual screenshots from local runs/deployed environments. -->
-- `docs/screenshots/home-page.png` (placeholder)
-- `docs/screenshots/product-listing.png` (placeholder)
-- `docs/screenshots/product-detail.png` (placeholder)
-- `docs/screenshots/cart-checkout.png` (placeholder)
-- `docs/screenshots/swagger-api-docs.png` (placeholder)
+- [`docs/screenshots/home-page.png`](docs/screenshots/home-page.png) (placeholder)
+- [`docs/screenshots/product-listing.png`](docs/screenshots/product-listing.png) (placeholder)
+- [`docs/screenshots/product-detail.png`](docs/screenshots/product-detail.png) (placeholder)
+- [`docs/screenshots/cart-checkout.png`](docs/screenshots/cart-checkout.png) (placeholder)
+- [`docs/screenshots/swagger-api-docs.png`](docs/screenshots/swagger-api-docs.png) (placeholder)
 
 ## Project Structure
 

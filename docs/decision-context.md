@@ -601,3 +601,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: root README.md.
 - Follow-up Actions: Keep future README references in Markdown link format by default.
 - Supersedes: N/A
+
+## 2026-05-12 | DEC-044 | Linkify README Screenshot Placeholders
+- Date: 2026-05-12
+- Decision ID: DEC-044
+- Decision: Convert screenshot placeholder file paths in README to relative Markdown links.
+- Context: Placeholder paths were visible but not clickable in GitHub README rendering.
+- Options Considered: Keep code-style file paths, convert only external URLs, convert placeholder file paths to relative links.
+- Chosen Option: Convert placeholder file paths to relative links.
+- Rationale: Improves documentation navigation consistency and keeps a single link style across README reference types.
+- Risks / Edge Cases: Links resolve only after screenshot files are added at matching paths.
+- Impacted Modules / Files: root README.md.
+- Follow-up Actions: Add real screenshot assets at linked paths in a later pass.
+- Supersedes: N/A
