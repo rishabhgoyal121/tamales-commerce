@@ -75,15 +75,15 @@ npm run dev
 
 ## API Docs
 
-- Swagger UI (local): `http://localhost:4000/docs`
-- Swagger UI (hosted): `https://tamales-commerce-backend.onrender.com/docs/#/`
+- [Swagger UI (local)](http://localhost:4000/docs)
+- [Swagger UI (hosted)](https://tamales-commerce-backend.onrender.com/docs/#/)
 
 ## Deployment
 
-- Deployment runbook: `docs/deployment.md`
-- Render blueprint config: `render.yaml`
-- Netlify config (build + SPA routing): `frontend/netlify.toml`
+- [Deployment runbook](docs/deployment.md)
+- [Render blueprint config](render.yaml)
+- [Netlify config (build + SPA routing)](frontend/netlify.toml)
 
 ## Decision Context
 
-- See `docs/decision-context.md`
+- [Decision context log](docs/decision-context.md)

@@ -588,3 +588,16 @@ This document tracks architecture and implementation decisions over time.
 - Impacted Modules / Files: root README.md.
 - Follow-up Actions: Revisit README links if infrastructure provider/domain is changed.
 - Supersedes: N/A
+
+## 2026-05-11 | DEC-043 | README Markdown Hyperlinks for Faster Navigation
+- Date: 2026-05-11
+- Decision ID: DEC-043
+- Decision: Convert README URL/file references from inline code format to clickable Markdown links for API docs and deployment/decision documents.
+- Context: Plain code-formatted links were not one-click navigable in GitHub preview, slowing reviewers and contributors.
+- Options Considered: Keep code-style references, convert only external URLs, convert both external URLs and internal docs to Markdown links.
+- Chosen Option: Convert both external URLs and internal docs links.
+- Rationale: Improves usability and reduces navigation friction without altering technical content.
+- Risks / Edge Cases: Relative links depend on repository structure and need updates if files move.
+- Impacted Modules / Files: root README.md.
+- Follow-up Actions: Keep future README references in Markdown link format by default.
+- Supersedes: N/A
